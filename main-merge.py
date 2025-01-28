@@ -1,5 +1,6 @@
 import flet as ft
 from WhisperSrc.whisper_python import whisperPythonFunction  # Asegúrate de que esta función esté definida correctamente
+import time
 
 def main(page: ft.Page):
 
@@ -7,6 +8,14 @@ def main(page: ft.Page):
     page.window.height = 600
     page.window.resizable = False
     page.title = "Whisper"
+
+    def format_time(seconds):
+        hours = int(seconds // 3600)
+        minutes = int(seconds % 3600 // 60)
+        seconds = seconds % 60
+        return f"{hours:02}:{minutes:02}:{seconds:06.3f}"
+    
+
 
     def pick_files_result(e: ft.FilePickerResultEvent):
         selected_files.value = (
@@ -16,21 +25,45 @@ def main(page: ft.Page):
 
     def transcribir(e):
         # Obtener el nombre del archivo seleccionado
-        print("ejecutando")
+        #print("ejecutando")
+      
         file_name = selected_files.value
-        if file_name != "Cancelled!":
-            # Llama a la función de transcripción
-            transcription = whisperPythonFunction(file_name)  # Asegúrate de que esta función acepte el nombre del archivo
-            # Muestra la transcripción en la interfaz
-            transcription_output.value = "Archivo transcrito con éxito"
-            transcription_output.update()
-        else:
-            print("No se ha seleccionado ningún archivo.")
+        try:
+            if file_name != "Cancelled!" and file_name != None:
+                # Llama a la función de transcripción
+                transcription = whisperPythonFunction(file_name)  # Asegúrate de que esta función acepte el nombre del archivo
+                # Muestra la transcripción en la interfaz
+                transcription_result.value= transcription
+                transcription_output.value = "Archivo transcrito con éxito"
+                try:
+                    for segment in transcription["segments"]:
+                        
+                        start_time_segment = format_time(segment["start"])
+                        end_time_segment = format_time(segment["end"])
+                        text = segment["text"]
+                        lv.controls.append(ft.Text(f"[{start_time_segment} - {end_time_segment}] {text} \n",color=ft.Colors.BLACK))
+                        page.update()
+                except:
+                    print("error")
+                transcription_output.update()
+                
+            else:
+                
+                #print("No se ha seleccionado ningún archivo.")
+                #Error=True
+                transcription_output.value = "No se selecciono un archivo"
+                
 
+
+        except:
+            transcription_output.value="Error, el archivo seleccionado no es valido"
+
+        
+        page.update()
     pick_files_dialog = ft.FilePicker(on_result=pick_files_result)
     selected_files = ft.Text(color=ft.Colors.BLACK)
-    transcription_output = ft.Text()  # Para mostrar la transcripción
-
+    transcription_output = ft.Text(color=ft.Colors.BLACK)  # Para mostrar la transcripción
+    transcription_result = ft.Text(color=ft.Colors.BLACK)  # Para mostrar la transcripción
     page.overlay.append(pick_files_dialog)
 
     page.window.width = 500
@@ -40,39 +73,81 @@ def main(page: ft.Page):
     page.padding = 0
 
     # Definir los textos que estarán en los contenedores
-    top = ft.Row(
-            [
-                ft.Text(value="Archivo cargado: ",color=ft.Colors.BLACK),
-                selected_files
-            ]
-        )
 
-    # Botón para elegir archivos
-    top_button = ft.ElevatedButton(
+    top_r = ft.Column(
+        [
+            ft.Text(value="Archivo cargado: ",color=ft.Colors.BLACK),
+            selected_files,
+            ft.ElevatedButton(
                     "Pick files",
                     icon=ft.Icons.UPLOAD_FILE,
                     on_click=lambda _: pick_files_dialog.pick_files(
                         allow_multiple=True
-                    ),
-                )
-    
-    mid = ft.Text(value="Mid")
-    bot = ft.Row(
-            [
-                ft.ElevatedButton(
-                    "Transcribir",
-                    icon=ft.Icons.UPLOAD_FILE,
-                    on_click=transcribir  # Llama a la función de transcripción aquí
-                ),
-                transcription_output,  # Muestra la salida de la transcripción
-            ]
-        )
+                    )),
 
+
+        ],
+        alignment=ft.MainAxisAlignment.CENTER,  # Centra los elementos verticalmente
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,  # Centra los elementos horizontalmente
+        spacing=20  # Espacio entre los elementos (puedes ajustarlo como desees)
+    )
+
+    
+
+
+    lv = ft.ListView(expand=1, spacing=10, padding=20, auto_scroll=True)
+
+  #  count = 1
+
+   
+   # for i in range(0, 60):
+    #    lv.controls.append(ft.Text(f"Line {count}",color=ft.Colors.BLACK))
+     #   count += 1
+
+    #page.add(lv)
+    mid = ft.Column([
+        
+        lv
+        #transcription_result
+
+
+
+    ],
+  
+    )
+
+
+
+    bot = ft.Column(
+        [
+            ft.Row(
+                [
+                    ft.ElevatedButton(
+                        "Transcribir",
+                        icon=ft.Icons.UPLOAD_FILE,
+                        on_click=transcribir  # Llama a la función de transcripción aquí
+                    ),
+                    ft.ElevatedButton(
+                        "Exportar",
+                        icon=ft.Icons.UPLOAD_FILE,
+                        on_click=transcribir  # Llama a la función de transcripción aquí
+                    ),
+                ],
+                alignment=ft.MainAxisAlignment.CENTER,  # Centra los botones horizontalmente en el Row
+                spacing=20  # Espacio entre los botones
+            ),
+
+            transcription_output,  # Muestra la salida de la transcripción
+        ],
+        alignment=ft.MainAxisAlignment.CENTER,  # Centra los elementos verticalmente
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,  # Centra todo dentro de la columna
+        spacing=20  # Espacio entre los elementos
+    )
     # Crear los contenedores para cada parte
     superior = ft.Container(
-        ft.Column([top, top_button]),  # Asegúrate de que top_button esté en el contenedor superior
+        top_r,  # Asegúrate de que top_button esté en el contenedor superior
         width=450, 
-        height=100, 
+        height=150, 
         margin=ft.margin.only(top=130), 
         border=ft.border.all()
     )

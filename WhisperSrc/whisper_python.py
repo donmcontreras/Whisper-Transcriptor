@@ -7,7 +7,7 @@ def whisperPythonFunction(File_Load):
 
     start_time = time.time()
 
-    device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")  # cuda:1 es la segunda GPU
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")  # cuda:1 es la segunda GPU
 
     print(f"Utilizando: {device}")
 
@@ -16,7 +16,7 @@ def whisperPythonFunction(File_Load):
 
 
 
-    Selected_Model="medium"
+    Selected_Model="small"
     print(f"Cargando modelo: {Selected_Model}")
     model = whisper.load_model(Selected_Model,device=device)
 
@@ -28,7 +28,7 @@ def whisperPythonFunction(File_Load):
 
 
     result = model.transcribe(Local_Audio)
-
+    result_r=result
     def format_time(seconds):
         hours = int(seconds // 3600)
         minutes = int(seconds % 3600 // 60)
@@ -37,7 +37,7 @@ def whisperPythonFunction(File_Load):
 
 
     with open("transcripcion_textos.txt","w",encoding="utf-8") as f:
-
+        #List=[]
 
         for segment in result["segments"]:
 
@@ -47,7 +47,7 @@ def whisperPythonFunction(File_Load):
 
             #
             f.write(f"[{start_time_segment} - {end_time_segment}] {text} \n")
-
+         #   List.append(f"[{start_time_segment} - {end_time_segment}] {text} \n")
     end_time = time.time()
 
 
@@ -59,7 +59,7 @@ def whisperPythonFunction(File_Load):
 
 
     print(f"Ejecutado en {e_m} : {e_s}")
-    return result
+    return result_r
 
 
 

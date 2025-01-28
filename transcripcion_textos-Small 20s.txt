@@ -1,4 +1,4 @@
-[00:00:00.000 - 00:00:02.060] Platz 2 
+[00:00:00.000 - 00:00:05.000] Zeus 
 [00:00:30.000 - 00:00:32.460] buscando como un mercenario 
 [00:00:32.460 - 00:00:35.880] Tú dime dónde estás que yo no te he encontrado 
 [00:00:35.880 - 00:00:39.500] Y mis manecillas miran yo y al contrario 
@@ -37,16 +37,14 @@
 [00:02:40.600 - 00:02:44.600] que te quiero como un buen torero 
 [00:02:44.600 - 00:02:48.600] Me juego la vida por ti 
 [00:02:48.600 - 00:02:52.600] Sé que ser torero poner el alma en el ruedo 
-[00:02:52.600 - 00:02:54.600] no bueno que se vengan pa' que sepas 
+[00:02:52.600 - 00:02:54.600] no이죠 que se vengan pa' que sepas 
 [00:02:54.600 - 00:02:58.600] que te quiero como un buen torero 
 [00:02:58.600 - 00:03:02.600] Me juego la vida por ti 
 [00:03:02.600 - 00:03:06.600] Sé que ser torero poner el alma en el ruedo 
-[00:03:06.600 - 00:03:08.600] no importa lo que se vengan pa' que sepas 
-[00:03:08.600 - 00:03:12.600] que te quiero como un buen torero 
+[00:03:06.600 - 00:03:12.600] No importa lo que se venga pa' que sepas que te quiero como un buen entorero 
 [00:03:12.600 - 00:03:16.600] Me juego la vida por ti 
-[00:03:16.600 - 00:03:20.600] Sé que ser torero poner el alma en el ruedo 
-[00:03:20.600 - 00:03:22.600] no importa lo que se vengan pa' que sepas 
-[00:03:22.600 - 00:03:26.600] que te quiero como un buen torero 
+[00:03:16.600 - 00:03:20.600] Si es que ser torero, poniér el arbol en el ruedo 
+[00:03:20.600 - 00:03:26.600] No importa lo que se venga pa' que sepas que te quiero como un buen entorero 
 [00:03:26.600 - 00:03:30.600] Me juego la vida por ti 
-[00:03:30.600 - 00:03:32.600] Sé que ser torero 
-[00:03:38.600 - 00:03:41.600] Subtítulos por la comunidad de Amara.org 
+[00:03:30.600 - 00:03:33.600] Si es que ser torero 
+[00:03:36.600 - 00:03:40.600] No importa lo que sepas 
