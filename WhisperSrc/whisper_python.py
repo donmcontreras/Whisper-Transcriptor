@@ -16,7 +16,7 @@ def whisperPythonFunction(File_Load):
 
 
 
-    Selected_Model="small"
+    Selected_Model="tiny"
     print(f"Cargando modelo: {Selected_Model}")
     model = whisper.load_model(Selected_Model,device=device)
 
