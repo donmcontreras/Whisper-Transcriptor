@@ -3,32 +3,24 @@ import torch
 import time
 
 
-def whisperPythonFunction(File_Load):
 
+def whisperPythonFunction(File_Load):
     start_time = time.time()
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")  # cuda:1 es la segunda GPU
-
     print(f"Utilizando: {device}")
 
-
-
-
-
-
-    Selected_Model="tiny"
+    Selected_Model = "tiny"
     print(f"Cargando modelo: {Selected_Model}")
-    model = whisper.load_model(Selected_Model,device=device)
-
-
-
+    model = whisper.load_model(Selected_Model, device=device)
 
     Local_Audio = File_Load
     print(f"Cargando archivo en {Local_Audio}")
 
-
     result = model.transcribe(Local_Audio)
-    result_r=result
+
+    
+    #result_r=result
     def format_time(seconds):
         hours = int(seconds // 3600)
         minutes = int(seconds % 3600 // 60)
@@ -49,7 +41,7 @@ def whisperPythonFunction(File_Load):
             f.write(f"[{start_time_segment} - {end_time_segment}] {text} \n")
          #   List.append(f"[{start_time_segment} - {end_time_segment}] {text} \n")
     end_time = time.time()
-
+            
 
     #tiempo
 
@@ -59,7 +51,7 @@ def whisperPythonFunction(File_Load):
 
 
     print(f"Ejecutado en {e_m} : {e_s}")
-    return result_r
+    return result
 
 
 

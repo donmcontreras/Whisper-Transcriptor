@@ -18,25 +18,8 @@ def main(page: ft.Page):
 
     transcription_done = False  # Variable para saber si la transcripción fue realizada
 
-    Export_Rute = ft.Text(value="Archivo guardado en: Aun no ha transcrito un archivo", color=ft.Colors.BLACK)
+    
 
-    def FileExporter(e):
-        # Asumimos que el archivo fue cargado correctamente a través de `pick_files_result`
-        # Verifica que se haya seleccionado un archivo antes de intentar exportar
-        if selected_files.value != "Cancelled!" and selected_files.value != "":
-            try:
-                Export_Rute.value = ft.FilePicker.save_file()
-                Export_Rute.update()
-            except:
-                Export_Rute.value = "ERROR"
-
-
-
-            
-            
-        else:
-            Export_Rute.value = "No se ha seleccionado un archivo para exportar"
-            Export_Rute.update()
 
     def pick_files_result(e: ft.FilePickerResultEvent):
         selected_files.value = (
@@ -44,19 +27,23 @@ def main(page: ft.Page):
         )
         selected_files.update()
 
+    
     def transcribir(e):
         nonlocal transcription_done  # Usamos la variable fuera de la función
-
+        nonlocal transcription_result
         # Obtener el nombre del archivo seleccionado
         file_name = selected_files.value
         try:
             if file_name != "Cancelled!" and file_name != None:
                 # Llama a la función de transcripción
-                transcription = whisperPythonFunction(file_name)  # Asegúrate de que esta función acepte el nombre del archivo
-                # Muestra la transcripción en la interfaz
-                transcription_result.value = transcription
-                transcription_output.value = "Archivo transcrito con éxito"
-                try:
+                transcription = whisperPythonFunction(file_name)  # Asegúrate de que esta función devuelva lo correcto
+
+                
+                # Si la transcripción es correcta, debería ser un diccionario con 'segments'
+                if isinstance(transcription, dict) and "segments" in transcription:
+                    # Muestra la transcripción en la interfaz
+                    transcription_result = transcription
+                    transcription_output.value = "Archivo transcrito con éxito"
                     for segment in transcription["segments"]:
                         start_time_segment = format_time(segment["start"])
                         end_time_segment = format_time(segment["end"])
@@ -66,23 +53,46 @@ def main(page: ft.Page):
                     transcription_done = True  # Actualizamos la variable cuando se termina la transcripción
                     export_button.disabled = False  # Habilitamos el botón Exportar
                     page.update()  # Actualizamos la página para reflejar el cambio
-                except:
-                    print("Error procesando los segmentos.")
-                transcription_output.update()
-                
+                else:
+                    transcription_output.value = "Error: La transcripción no tiene el formato esperado"
+                    
             else:
                 transcription_output.value = "No se seleccionó un archivo"
 
-        except:
-            transcription_output.value = "Error, el archivo seleccionado no es válido"
+        except Exception as e:
+            transcription_output.value = f"Error, el archivo seleccionado no es válido: {e}"
         
         page.update()
 
+
+    def save_files_result(e: ft.FilePickerResultEvent):
+        save_file_rute.value = e.path
+        #nonlocal transcription  # Usamos la transcripción obtenida en la función transcribir
+
+
+        try:
+            # Asegurándonos de que transcription esté correctamente disponible
+            with open(save_file_rute.value, "w", encoding="utf-8") as f:
+                for segment in transcription_result["segments"]:  # Usamos 'transcription' aquí
+                    start_time_segment = format_time(segment["start"])
+                    end_time_segment = format_time(segment["end"])
+                    text = segment["text"].strip()
+                    f.write(f"[{start_time_segment} - {end_time_segment}] {text} \n")
+                    
+            save_file_rute.update()
+        except Exception as ex:
+            print(f"Error al guardar el archivo: {ex}")
+
+        save_file_rute.update()
+
     pick_files_dialog = ft.FilePicker(on_result=pick_files_result)
+    save_files_dialog = ft.FilePicker(on_result=save_files_result)
     selected_files = ft.Text(color=ft.Colors.BLACK)
+    save_file_rute = ft.Text(color=ft.Colors.BLACK)
     transcription_output = ft.Text(color=ft.Colors.BLACK)  # Para mostrar la transcripción
-    transcription_result = ft.Text(color=ft.Colors.BLACK)  # Para mostrar la transcripción
+    transcription_result = None  # Para mostrar la transcripción
     page.overlay.append(pick_files_dialog)
+    page.overlay.append(save_files_dialog)
     
 
 
@@ -101,7 +111,7 @@ def main(page: ft.Page):
             ft.ElevatedButton(
                 "Pick files",
                 icon=ft.Icons.UPLOAD_FILE,
-                on_click=lambda _: pick_files_dialog.pick_files(allow_multiple=True)
+                on_click=lambda _: pick_files_dialog.pick_files(allow_multiple=False,allowed_extensions=['mp4','m4a','mp3','avi','mpeg'])
             ),
         ],
         alignment=ft.MainAxisAlignment.CENTER,
@@ -117,7 +127,7 @@ def main(page: ft.Page):
         "Exportar",
         icon=ft.Icons.UPLOAD_FILE,
         disabled=True,  # Inicia como deshabilitado
-        on_click=FileExporter
+        on_click=lambda _: save_files_dialog.save_file(allowed_extensions=['txt'])
     )
 
     bot = ft.Column(
@@ -135,7 +145,7 @@ def main(page: ft.Page):
                 spacing=20
             ),
             transcription_output,
-            Export_Rute
+            save_file_rute,
         ],
         alignment=ft.MainAxisAlignment.CENTER,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
