@@ -26,9 +26,10 @@ def main(page: ft.Page):
 
     def pick_files_result(e: ft.FilePickerResultEvent):
         selected_files.value = (
-            ", ".join(map(lambda f: f.name, e.files)) if e.files else "Cancelled!"
+            ", ".join(map(lambda f: f.path, e.files)) if e.files else "Cancelled!"
         )
         selected_files.update()
+
 
     async def transcribir(e):
         # Obtener el nombre del archivo seleccionado
@@ -42,7 +43,7 @@ def main(page: ft.Page):
                 progress_bar.update()
 
                 # Llama a la función de transcripción
-                transcription = await asyncio.to_thread(whisperPythonFunction, file_name, update_progress, selected_model)  # Asegúrate de que esta función acepte el nombre del archivo y el callback
+                transcription = await asyncio.to_thread(whisperPythonFunction, file_name, selected_model)  # Asegúrate de que esta función acepte el nombre del archivo y el callback
                 # Muestra la transcripción en la interfaz
                 transcription_result = transcription
                 transcription_output.value = "Archivo transcrito con éxito."
@@ -93,6 +94,7 @@ def main(page: ft.Page):
         save_file_rute.update()
 
     pick_files_dialog = ft.FilePicker(on_result=pick_files_result)
+
     save_files_dialog = ft.FilePicker(on_result=save_files_result)
     selected_files = ft.Text(color=ft.Colors.BLACK)
     save_file_rute = ft.Text(color=ft.Colors.BLACK)
