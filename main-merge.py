@@ -1,107 +1,100 @@
-import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning, module='pydub.utils')
-warnings.filterwarnings("ignore", category=FutureWarning, module='whisper') # Si hay actualización de whisper, revisar
-
 import flet as ft
-from WhisperSrc.whisper_python import whisperPythonFunction  # Asegúrate de que esta función esté definida correctamente
 import torch
 import asyncio
+import subprocess
 
 def main(page: ft.Page):
 
-    page.window.width = 800
-    page.window.height = 600
-    page.window.resizable = False
-    page.title = "Whisper"
-
-    def format_time(seconds):
-        hours = int(seconds // 3600)
-        minutes = int(seconds % 3600 // 60)
-        seconds = seconds % 60
-        return f"{hours:02}:{minutes:02}:{seconds:06.3f}"
-
-    transcription_done = False  # Variable para saber si la transcripción fue realizada
-
+    ### SELECCIONAR ARCHIVO ###
     def pick_files_result(e: ft.FilePickerResultEvent):
         selected_files.value = (
             ", ".join(map(lambda f: f.path, e.files)) if e.files else "Cancelled!"
         )
         selected_files.update()
 
+    ### TRANSCRIBIR ARCHIVO ###
     async def transcribir(e):
-        # Obtener el nombre del archivo seleccionado
-        nonlocal transcription_result
         file_name = selected_files.value
-        selected_model = model_dropdown.value  # Obtener el modelo seleccionado
-        selected_device = device_dropdown.value  # Obtener el dispositivo seleccionado
+        selected_model = model_dropdown.value
+        selected_device = device_dropdown.value
         try:
             if file_name != "Cancelled!" and file_name is not None:
-                # Llama a la función de transcripción
-                transcription = await asyncio.to_thread(whisperPythonFunction, file_name, selected_model, selected_device)  # Asegúrate de que esta función acepte el nombre del archivo y el callback
-                # Muestra la transcripción en la interfaz
-                transcription_result = transcription
-                transcription_output.value = "Archivo transcrito con éxito."
-                try:
-                    for segment in transcription["segments"]:
-                        start_time_segment = format_time(segment["start"])
-                        end_time_segment = format_time(segment["end"])
-                        text = segment["text"]
-                        lv.controls.append(ft.Text(f"[{start_time_segment} - {end_time_segment}] {text} \n", color=ft.Colors.BLACK))
-                        page.update()
-                    transcription_done = True  # Actualizamos la variable cuando se termina la transcripción
-                    export_button.disabled = False  # Habilitamos el botón Exportar
-                    page.update()  # Actualizamos la página para reflejar el cambio
-                except:
-                    transcription_output.value = "Error: La transcripción no tiene el formato esperado"
-                    
+                commandtxt.value = f'python WhisperSrc/whisper_python.py "{file_name}" {selected_model} {selected_device}'
+                run_con(commandtxt.value)
             else:
-                transcription_output.value = "No se seleccionó un archivo"
-
+                transcription_done.value = "No se seleccionó un archivo"
+                page.update()
         except Exception as e:
-            transcription_output.value = f"Error, el archivo seleccionado no es válido: {e}"
+            transcription_done.value = f"Error, el archivo seleccionado no es válido: {e}"
+            page.update()
+
+    ### EJECUTAR COMANDO ###
+    def run_con(cmd):
+        process = subprocess.Popen(
+            cmd,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            encoding="utf-8"
+        )
+
+        result_con.controls.append(ft.Text(cmd, color="black"))
+        page.update()
+        result_con.auto_scroll = True
+
+        for line in process.stdout:
+            result_con.controls.append(ft.Text(line, color="black"))
+            page.update()
+            result_con.auto_scroll = True
+
+        process.stdout.close()
+        process.wait()
+        commandtxt.value = ""
+        page.update()
+        result_con.auto_scroll = True
+
+        try:
+            with open("storage/temp/transcripcion_temp.txt", "r", encoding="utf-8") as f:
+                transcription_done.value = f.read()
+                export_button.disabled = False
+        except Exception as e:
+            transcription_done.value = f"Error al leer el archivo de transcripción: {e}"
         
         page.update()
 
-    def save_files_result(e: ft.FilePickerResultEvent):
-        save_file_rute.value = e.path
-        # Asegurándonos de que transcription esté correctamente disponible
-        try:
-            # Asegurándonos de que el archivo tenga la extensión .txt
-            if not save_file_rute.value.endswith(".txt"):
-                save_file_rute.value += ".txt"
-            with open(save_file_rute.value, "w", encoding="utf-8") as f:
-                for segment in transcription_result["segments"]:
-                    start_time_segment = format_time(segment["start"])
-                    end_time_segment = format_time(segment["end"])
-                    text = segment["text"].strip()
-                    f.write(f"[{start_time_segment} - {end_time_segment}] {text} \n")
-            save_file_rute.update()
-        except Exception as ex:
-            print(f"Error al guardar el archivo: {ex}")
+    ### EXPORTAR TRANSCRIPCIÓN ###
+    def export_transcription(e: ft.FilePickerResultEvent):
+        if e.path:
+            if not e.path.endswith(".txt"):
+                e.path += ".txt"
+            try:
+                with open(e.path, "w", encoding="utf-8") as f:
+                    f.write(transcription_done.value)
+                save_file_rute.value = f"Transcripción exportada a {e.path}"
+            except Exception as e:
+                save_file_rute.value = f"Error al exportar la transcripción: {e}"
+        else:
+            save_file_rute.value = "Exportación cancelada"
+        page.update()
 
-        save_file_rute.update()
-
-    pick_files_dialog = ft.FilePicker(on_result=pick_files_result)
-    save_files_dialog = ft.FilePicker(on_result=save_files_result)
-    selected_files = ft.Text(color=ft.Colors.BLACK)
-    save_file_rute = ft.Text(color=ft.Colors.BLACK)
-    transcription_output = ft.Text(color=ft.Colors.BLACK)  # Para mostrar la transcripción
-    transcription_result = None  # Para mostrar la transcripción
-   
-    page.overlay.append(pick_files_dialog)
-    page.overlay.append(save_files_dialog)
-    
-    # Configuración de la página
-    page.window.width = 500
+    ### CONFIGURACIÓN DE LA PÁGINA ###
+    page.window.width = 800
     page.window.height = 800
     page.window.resizable = False
-    page.title = "Whisper"
+    page.title = "Whisper GUI"
     page.padding = 0
 
-    # Verificar si CUDA está disponible
-    cuda_available = torch.cuda.is_available()
+    ### ELEMENTOS DE LA INTERFAZ ###
+    pick_files_dialog = ft.FilePicker(on_result=pick_files_result)
+    save_file_dialog = ft.FilePicker(on_result=export_transcription)
+    selected_files = ft.Text(color=ft.Colors.BLACK)
+    save_file_rute = ft.Text(color=ft.Colors.BLACK)
+    transcription_done = ft.Text(color=ft.Colors.BLACK, expand=1)
+    commandtxt = ft.TextField(color="black", cursor_color="black", on_submit=lambda e: run_con(commandtxt.value))
+    result_con = ft.ListView(expand=1, spacing=5, padding=5, auto_scroll=True)
+    terminal_ct = ft.Column([result_con])
 
-    # Dropdown para seleccionar el modelo
     model_dropdown = ft.Dropdown(
         options=[
             ft.dropdown.Option("tiny"),
@@ -111,48 +104,53 @@ def main(page: ft.Page):
             ft.dropdown.Option("large"),
             ft.dropdown.Option("turbo"),
         ],
-        value="medium",  # Valor por defecto
+        value="medium",
         label="Seleccionar modelo",
-        width=100, # Ancho del dropdown
-        height=50, # Alto del dropdown
-        color=ft.Colors.BLUE, # Color del dropdown
+        width=100,
+        height=50,
+        color=ft.Colors.BLUE,
     )
 
-    # Dropdown para seleccionar el dispositivo
+    cuda_available = torch.cuda.is_available()
     device_options = [ft.dropdown.Option("cpu")]
     if cuda_available:
         device_options.append(ft.dropdown.Option("cuda"))
 
     device_dropdown = ft.Dropdown(
         options=device_options,
-        value="cpu",  # Valor por defecto
+        value="cpu",
         label="Seleccionar dispositivo",
-        width=100, # Ancho del dropdown
-        height=50, # Alto del dropdown
-        color=ft.Colors.BLUE, # Color del dropdown
+        width=100,
+        height=50,
+        color=ft.Colors.BLUE,
+        disabled=not cuda_available
     )
 
-    # Definir los textos que estarán en los contenedores
+    export_button = ft.ElevatedButton(
+        "Exportar",
+        icon=ft.Icons.DOWNLOAD,
+        disabled=True,
+        on_click=lambda e: save_file_dialog.save_file(allowed_extensions=['txt'])
+    )
+
+    ### DISEÑO DE LA INTERFAZ ###
     top_r = ft.Column(
         [
             ft.Row(
                 [
-                ft.ElevatedButton("Subir archivo", icon=ft.Icons.UPLOAD_FILE, on_click=lambda _: pick_files_dialog.pick_files(allow_multiple=False,allowed_extensions=['mp4','m4a','mp3','avi','mpeg'])),
-                ft.Text("Archivo cargado: ", size=20, color=ft.Colors.BLACK)
-            ],
-            alignment=ft.MainAxisAlignment.CENTER,
+                    ft.Text("Seleccione archivo: ", size=20, color=ft.Colors.BLACK),
+                    ft.ElevatedButton("Seleccionar archivo", icon=ft.Icons.UPLOAD_FILE, on_click=lambda _: pick_files_dialog.pick_files(allow_multiple=False, allowed_extensions=['mp4', 'm4a', 'mp3', 'avi', 'mpeg']))
+                ],
+                alignment=ft.MainAxisAlignment.CENTER,
             ),
             selected_files,
-            ft.Row([
-                model_dropdown,  # Añadir el dropdown aquí
-                device_dropdown,  # Añadir el dropdown aquí
-                ft.ElevatedButton(
-                    "Transcribir",
-                    icon=ft.Icons.PLAY_ARROW,
-                    on_click=lambda e: asyncio.run(transcribir(e))  # Llama a la función de transcripción aquí
-                ),
-            ],
-            alignment=ft.MainAxisAlignment.CENTER
+            ft.Row(
+                [
+                    model_dropdown,
+                    device_dropdown,
+                    ft.ElevatedButton("Transcribir", icon=ft.Icons.PLAY_ARROW, on_click=lambda e: asyncio.run(transcribir(e)))
+                ],
+                alignment=ft.MainAxisAlignment.CENTER
             ),
         ],
         alignment=ft.MainAxisAlignment.CENTER,
@@ -160,55 +158,29 @@ def main(page: ft.Page):
         spacing=20
     )
 
-    lv = ft.ListView(expand=1, spacing=10, padding=20, auto_scroll=False)
-
-    mid = ft.Column([lv])
-
-    export_button = ft.ElevatedButton(
-        "Exportar",
-        icon=ft.Icons.DOWNLOAD,
-        disabled=True,  # Inicia como deshabilitado
-        on_click=lambda _: save_files_dialog.save_file(allowed_extensions=['txt'])
-    )
+    lv = ft.ListView(expand=1, spacing=5, padding=10, auto_scroll=False, controls=[transcription_done])
+    textscroll = ft.Container(lv, width=750, height=260)
+    command = ft.Container(terminal_ct, width=750, height=100, margin=ft.margin.only(top=10), border=ft.border.all())
 
     bot = ft.Column(
         [
-            ft.Row(
-                [
-                    export_button,  # Usamos el botón export_button aquí
-                ],
-                alignment=ft.MainAxisAlignment.CENTER,
-            ),
-            save_file_rute,
-            transcription_output
+            ft.Row([textscroll], alignment=ft.MainAxisAlignment.CENTER),
+            export_button,
+            save_file_rute
         ],
         alignment=ft.MainAxisAlignment.CENTER,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         spacing=10
     )
 
-    #### Contenedores ####
-    superior = ft.Container(top_r, width=450, height=200, margin=ft.margin.only(top=20), border=ft.border.all())
-    centro = ft.Container(mid, width=450, height=320, margin=ft.margin.only(top=10), border=ft.border.all())
-    inferior = ft.Container(bot, width=450, height=150, margin=ft.margin.only(top=10), border=ft.border.all())
+    superior = ft.Container(top_r, width=750, height=200, margin=ft.margin.only(top=20), border=ft.border.all())
+    midterm = ft.Column(spacing=10, controls=[command])
+    inferior = ft.Container(bot, width=750, height=380, margin=ft.margin.only(top=10), border=ft.border.all())
 
-    col = ft.Column(
-        spacing=10,
-        controls=[
-            superior,
-            centro,
-            inferior,
-        ]
-    )
+    col = ft.Column(spacing=10, controls=[superior, midterm, inferior])
+    contenedor = ft.Container(col, width=page.window.width, height=page.window.height, bgcolor=ft.Colors.WHITE, alignment=ft.alignment.top_center)
 
-    contenedor = ft.Container(
-        col,
-        width=page.window.width,
-        height=page.window.height,
-        bgcolor=ft.Colors.WHITE,
-        alignment=ft.alignment.top_center
-    )
-
+    page.overlay.extend([pick_files_dialog, save_file_dialog])
     page.add(contenedor)
     page.update()
 

@@ -1,60 +1,38 @@
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning, module='pydub.utils')
+warnings.filterwarnings("ignore", category=FutureWarning, module='whisper')  # Si hay actualización de whisper, revisar
+
 import whisper
 import torch
-import time
 from pydub import AudioSegment
+import sys
+import os
 
-def whisperPythonFunction(File_Load, model="medium", device="cpu"):
-    start_time = time.time()
-
-    device = torch.device(device if torch.cuda.is_available() else "cpu")  # cuda:1 es la segunda GPU
+### FUNCION PRINCIPAL DE WHISPER ###
+def whisperPythonFunction(file_load, model="medium", device="cpu", output_path="storage/temp/transcripcion_temp.txt"):
+    device = get_device(device)
     print(f"Utilizando: {device}")
 
-    ### CARGAR MODELO ###
-    Selected_Model = model
-    print(f"Cargando modelo: {Selected_Model}")
-    model = whisper.load_model(Selected_Model, device=device)
+    model = load_model(model, device)
 
-    ### CARGAR AUDIO ###
-    Local_Audio = File_Load
-    print(f"Cargando archivo en {Local_Audio}")
-
-    ### OBTENER DURACION DE AUDIO ###
-    audioDuration = getAudioDuration(Local_Audio)
-    print(f"Duracion de audio: {audioDuration}")
-
-    ### TRANSCRIBIR AUDIO ###
-    lenguaje = "es"
-    if lenguaje == "es":
-        idioma = "Español"
-    print(f"Transcribiendo en {idioma}")
-    result = model.transcribe(Local_Audio, language=lenguaje, verbose=False)
-
-    def format_time(seconds):
-        hours = int(seconds // 3600)
-        minutes = int(seconds % 3600 // 60)
-        seconds = seconds % 60
-        return f"{hours:02}:{minutes:02}:{seconds:06.3f}"
-
-    ### GUARDAR TRANSCRIPCION ###
-    with open("transcripcion_temp.txt", "w", encoding="utf-8") as f:
-        for segment in result["segments"]:
-            start_time_segment = format_time(segment["start"])
-            end_time_segment = format_time(segment["end"])
-            text = segment["text"].strip()
-            f.write(f"[{start_time_segment} - {end_time_segment}] {text} \n")
-         #   List.append(f"[{start_time_segment} - {end_time_segment}] {text} \n")
-    end_time = time.time()
-
-    #tiempo
-    #e_h = (end_time - start_time) //3600
-    e_m = (end_time - start_time) % 3600 // 60
-    e_s = (end_time - start_time) % 60
-
-    ### IMPRIMIR RESULTADOS ###
-    print(f"Ejecutado en {e_m} : {e_s}")
+    result = transcribe_audio(model, file_load)
+    save_transcription(result, output_path)
     return result
 
-def getAudioDuration(file_path):
+### OBTENER DISPOSITIVO ###
+def get_device(device):
+    valid_devices = ["cpu", "cuda"]
+    if device not in valid_devices:
+        raise ValueError(f"Dispositivo no válido: {device}. Los dispositivos válidos son: {', '.join(valid_devices)}")
+    return torch.device(device if torch.cuda.is_available() else "cpu")
+
+### CARGAR MODELO ###
+def load_model(model, device):
+    print(f"Cargando modelo: {model}")
+    return whisper.load_model(model, device=device)
+
+### OBTENER DURACIÓN DE AUDIO ###
+def get_audio_duration(file_path):
     audio = AudioSegment.from_file(file_path)
     duration_ms = len(audio)
     duration_s = duration_ms / 1000
@@ -63,3 +41,39 @@ def getAudioDuration(file_path):
     seconds = duration_s % 60
     formatted_duration = f"{hours:02}:{minutes:02}:{seconds:06.3f}"
     return formatted_duration, duration_s
+
+### INSTRUCCIONES PARA TRANSCRIBIR AUDIO ###
+def transcribe_audio(model, file_load):
+    print(f"Cargando archivo en {file_load}")
+    print("Transcribiendo en Español")
+    audio_duration = get_audio_duration(file_load)
+    print(f"Duración de audio: {audio_duration}")
+    return model.transcribe(file_load, language="es", verbose=False)
+
+### GUARDAR TRANSCRIPCIÓN ###
+def save_transcription(result, output_path):
+    def format_time(seconds):
+        hours = int(seconds // 3600)
+        minutes = int(seconds % 3600 // 60)
+        seconds = seconds % 60
+        return f"{hours:02}:{minutes:02}:{seconds:06.3f}"
+
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
+        for segment in result["segments"]:
+            start_time_segment = format_time(segment["start"])
+            end_time_segment = format_time(segment["end"])
+            text = segment["text"].strip()
+            f.write(f"[{start_time_segment} - {end_time_segment}] {text} \n")
+
+### EJECUCIÓN DE WHISPER ###
+if __name__ == "__main__":
+    try:
+        file_load = sys.argv[1]
+        model = sys.argv[2]
+        device = sys.argv[3]
+        output_path = "storage/temp/transcripcion_temp.txt"
+        whisperPythonFunction(file_load, model, device, output_path)
+    except Exception as e:
+        print(f"Error: {e}")
+        sys.exit(1)
