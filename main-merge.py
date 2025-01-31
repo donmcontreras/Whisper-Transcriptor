@@ -17,6 +17,10 @@ def main(page: ft.Page):
         file_name = selected_files.value
         selected_model = model_dropdown.value
         selected_device = device_dropdown.value
+        transcribe_button.disabled = True
+        result_con.controls.clear()
+        transcription_done.value = ""
+        page.update()
         try:
             if file_name != "Cancelled!" and file_name is not None:
                 commandtxt.value = f'python WhisperSrc/whisper_python.py "{file_name}" {selected_model} {selected_device}'
@@ -26,6 +30,9 @@ def main(page: ft.Page):
                 page.update()
         except Exception as e:
             transcription_done.value = f"Error, el archivo seleccionado no es válido: {e}"
+            page.update()
+        finally:
+            transcribe_button.disabled = False
             page.update()
 
     ### EJECUTAR COMANDO ###
@@ -62,6 +69,7 @@ def main(page: ft.Page):
             transcription_done.value = f"Error al leer el archivo de transcripción: {e}"
         
         page.update()
+        transcribe_button.disabled = False
 
     ### EXPORTAR TRANSCRIPCIÓN ###
     def export_transcription(e: ft.FilePickerResultEvent):
@@ -133,6 +141,12 @@ def main(page: ft.Page):
         on_click=lambda e: save_file_dialog.save_file(allowed_extensions=['txt'])
     )
 
+    transcribe_button = ft.ElevatedButton(
+        "Transcribir",
+        icon=ft.Icons.PLAY_ARROW,
+        on_click=lambda e: asyncio.run(transcribir(e))
+    )
+
     ### DISEÑO DE LA INTERFAZ ###
     top_r = ft.Column(
         [
@@ -148,7 +162,7 @@ def main(page: ft.Page):
                 [
                     model_dropdown,
                     device_dropdown,
-                    ft.ElevatedButton("Transcribir", icon=ft.Icons.PLAY_ARROW, on_click=lambda e: asyncio.run(transcribir(e)))
+                    transcribe_button
                 ],
                 alignment=ft.MainAxisAlignment.CENTER
             ),

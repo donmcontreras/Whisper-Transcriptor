@@ -40,7 +40,7 @@ def get_audio_duration(file_path):
     minutes = int(duration_s % 3600 // 60)
     seconds = duration_s % 60
     formatted_duration = f"{hours:02}:{minutes:02}:{seconds:06.3f}"
-    return formatted_duration, duration_s
+    return formatted_duration
 
 ### INSTRUCCIONES PARA TRANSCRIBIR AUDIO ###
 def transcribe_audio(model, file_load):
