@@ -28,7 +28,7 @@ Para empezar a proceder con las instrucciones de instalación, primero requiere 
 Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 ```
 
-**`FFmpeg`**, el cual requiere de **Chocolatey**, y que para instalarse se necesita **reiniciar** el `PowerShell` en modo de **administrador** e ingresar lo siguiente:
+**`FFmpeg`**, el cual requiere de **Chocolatey**, y que, para instalarse, se necesita **reiniciar** el `PowerShell` en modo de **administrador** e ingresar lo siguiente:
 ```
 choco install ffmpeg -y
 ```
