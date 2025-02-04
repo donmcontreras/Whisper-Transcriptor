@@ -12,12 +12,11 @@ Miguel Contreras; Diego Molina.
 
 # **Índice**
 
-1. [Requisitos previos](#requisitos-previos)
-
-2. [Instrucciones](#instrucciones)
-    1. [Clonar](#clonar)
-    2. [Instalación local](#instalacion-local)
-    3. [Ejecución](#ejecucion)
+1. [Requisitos previos](#1-requisitos-previos)
+2. [Instrucciones](#2-instrucciones)
+    1. [Clonar](#21-clonar)
+    2. [Instalación local](#22-instalación-local)
+    3. [Ejecución](#23-ejecución)
 
 ## **1. Requisitos previos**
 Para empezar a proceder con las instrucciones de instalación, primero requiere tener (verificar en orden):
