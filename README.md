@@ -18,7 +18,7 @@ Miguel Contreras; Diego Molina.
     3. [Ejecución](#ejecucion)
 
 ## **Instrucciones**
-Ésto es una guía de usuario para poder ejecutar el programa, el cuál se recomienda seguir paso por paso para minimizar los problemas que se puedan generar durante la ejecución. Requiere tener instalado `Python 1.12.6`, el cuál se puede descargar [aquí](https://www.python.org/downloads/release/python-3126/)
+Ésto es una guía de usuario para poder ejecutar el programa, el cuál se recomienda seguir paso por paso para minimizar los problemas que se puedan generar durante la ejecución. Requiere tener instalado `Python 1.12.6`, el cuál se puede descargar [aquí](https://www.python.org/downloads/release/python-3126/).
 
 ### **Clonar**
 
