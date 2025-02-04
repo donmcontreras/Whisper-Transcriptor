@@ -160,8 +160,7 @@ cython_debug/
 #.idea/
 
 # Flet
-storage/
+storage/temp
 main-tuner.py
-main.py
 /Whisper-Transcript
 /.vscode

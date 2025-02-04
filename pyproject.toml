@@ -5,10 +5,18 @@ description = ""
 readme = "README.md"
 requires-python = ">=3.9"
 authors = [
-    { name = "Flet developer", email = "you@example.com" }
+    { name = "Miguel Contreras", email = "miguelignacio.contreras@alumnos.ulagos.cl" }
+    { name = "Diego Molina", email = "diegomolina761@gmail.com" }
 ]
 dependencies = [
-  "flet==0.26.0"
+  "flet==0.26.0",
+  "torch>=1.9.0",
+  "whisper",
+  "pydub",
+  "ffmpeg",
+  "openai-whisper",
+  "torchaudio",
+  "torchvision"
 ]
 
 [tool.flet]

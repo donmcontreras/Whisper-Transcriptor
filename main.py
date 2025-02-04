@@ -2,6 +2,7 @@ import flet as ft
 import torch
 import asyncio
 import subprocess
+import os
 
 def main(page: ft.Page):
 
@@ -23,7 +24,8 @@ def main(page: ft.Page):
         page.update()
         try:
             if file_name != "Cancelado" and file_name is not None:
-                commandtxt.value = f'python WhisperSrc/whisper_python.py "{file_name}" {selected_model} {selected_device}'
+                whisper_python_path = os.path.abspath("src/whisper.py")
+                commandtxt.value = f'python "{whisper_python_path}" "{file_name}" {selected_model} {selected_device}'
                 run_con(commandtxt.value)
             else:
                 transcription_done.value = "No se seleccionó un archivo"
@@ -90,6 +92,7 @@ def main(page: ft.Page):
     page.window.width = 800
     page.window.height = 800
     page.window.resizable = False
+    page.window.maximizable = False
     page.title = "Transcriptor Multimedia"
     page.padding = 0
 
@@ -187,20 +190,19 @@ def main(page: ft.Page):
         spacing=10
     )
 
-    #Contenedor superior
+    ### CONTENEDOR SUPERIOR ###
     superior = ft.Container(top_r, width=750, height=200, margin=ft.margin.only(top=20), border=ft.border.all())
-    
-    #Contenedor medio
+
+    ### CONTENEDOR MEDIO ###
     midterm = ft.Column(spacing=10, controls=[command])
-    
-    #Contenedor inferior
+
+    ### CONTENEDOR INFERIOR ###
     inferior = ft.Container(bot, width=750, height=380, margin=ft.margin.only(top=10), border=ft.border.all())
 
-
-    #Columna principal
+    ### COLUMNA PRINCIPAL ###
     col = ft.Column(spacing=10, controls=[superior, midterm, inferior])
-    
-    #Contenedor general
+
+    ### CONTENEDOR GENERAL ###
     contenedor = ft.Container(col, width=page.window.width, height=page.window.height, bgcolor=ft.Colors.WHITE, alignment=ft.alignment.top_center)
 
     page.overlay.extend([pick_files_dialog, save_file_dialog])
