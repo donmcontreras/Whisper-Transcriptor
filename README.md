@@ -21,6 +21,7 @@ Miguel Contreras; Diego Molina.
 
 ## **1. Requisitos previos**
 Para empezar a proceder con las instrucciones de instalación, primero requiere tener (verificar en orden):
+
 **`Python 1.12.6`**, el cuál se puede descargar [aquí](https://www.python.org/downloads/release/python-3126/).
 
 **`Chocolatey`**, que para instalar necesita abrir una línea de comandos en `PowerShell` en modo de **administrador** e ingresar lo siguiente:
