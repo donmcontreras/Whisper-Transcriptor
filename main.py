@@ -24,7 +24,7 @@ def main(page: ft.Page):
         page.update()
         try:
             if file_name != "Cancelado" and file_name is not None:
-                whisper_python_path = os.path.abspath("src/whisper.py")
+                whisper_python_path = os.path.abspath("src/whisperpy.py")
                 commandtxt.value = f'python "{whisper_python_path}" "{file_name}" {selected_model} {selected_device}'
                 run_con(commandtxt.value)
             else:
@@ -46,7 +46,7 @@ def main(page: ft.Page):
             page.update()
 
         # Comando para activar el entorno virtual y ejecutar el comando
-        full_cmd = f'cmd.exe /c "{venv_activate} && {cmd}"'
+        full_cmd = f'cmd.exe /c "{venv_activate} && "{cmd}""'
 
         process = subprocess.Popen(
             full_cmd,
