@@ -8,7 +8,7 @@ def main(page: ft.Page):
     ### SELECCIONAR ARCHIVO ###
     def pick_files_result(e: ft.FilePickerResultEvent):
         selected_files.value = (
-            ", ".join(map(lambda f: f.path, e.files)) if e.files else "Cancelled!"
+            ", ".join(map(lambda f: f.path, e.files)) if e.files else "Cancelado"
         )
         selected_files.update()
 
@@ -22,7 +22,7 @@ def main(page: ft.Page):
         transcription_done.value = ""
         page.update()
         try:
-            if file_name != "Cancelled!" and file_name is not None:
+            if file_name != "Cancelado" and file_name is not None:
                 commandtxt.value = f'python WhisperSrc/whisper_python.py "{file_name}" {selected_model} {selected_device}'
                 run_con(commandtxt.value)
             else:
@@ -90,7 +90,7 @@ def main(page: ft.Page):
     page.window.width = 800
     page.window.height = 800
     page.window.resizable = False
-    page.title = "Whisper GUI"
+    page.title = "Transcriptor Multimedia"
     page.padding = 0
 
     ### ELEMENTOS DE LA INTERFAZ ###
@@ -187,11 +187,20 @@ def main(page: ft.Page):
         spacing=10
     )
 
+    #Contenedor superior
     superior = ft.Container(top_r, width=750, height=200, margin=ft.margin.only(top=20), border=ft.border.all())
+    
+    #Contenedor medio
     midterm = ft.Column(spacing=10, controls=[command])
+    
+    #Contenedor inferior
     inferior = ft.Container(bot, width=750, height=380, margin=ft.margin.only(top=10), border=ft.border.all())
 
+
+    #Columna principal
     col = ft.Column(spacing=10, controls=[superior, midterm, inferior])
+    
+    #Contenedor general
     contenedor = ft.Container(col, width=page.window.width, height=page.window.height, bgcolor=ft.Colors.WHITE, alignment=ft.alignment.top_center)
 
     page.overlay.extend([pick_files_dialog, save_file_dialog])
