@@ -19,36 +19,38 @@ Miguel Contreras; Diego Molina.
     2. [Instalación local](#instalacion-local)
     3. [Ejecución](#ejecucion)
 
-## **Requisitos previos**
+## **1. Requisitos previos**
 Para empezar a proceder con las instrucciones de instalación, primero requiere tener (verificar en orden):
-`Python 1.12.6`, el cuál se puede descargar [aquí](https://www.python.org/downloads/release/python-3126/).
-`Chocolatey`, que para instalar necesita abrir una línea de comandos en `PowerShell` en modo de **administrador** e ingresar lo siguiente:
+**`Python 1.12.6`**, el cuál se puede descargar [aquí](https://www.python.org/downloads/release/python-3126/).
+
+**`Chocolatey`**, que para instalar necesita abrir una línea de comandos en `PowerShell` en modo de **administrador** e ingresar lo siguiente:
 ```
 Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 ```
-`FFmpeg`, el cual requiere de **Chocolatey**, y que para instalarse se necesita **reiniciar** el `PowerShell` en modo de **administrador** e ingresar lo siguiente:
+
+**`FFmpeg`**, el cual requiere de **Chocolatey**, y que para instalarse se necesita **reiniciar** el `PowerShell` en modo de **administrador** e ingresar lo siguiente:
 ```
 choco install ffmpeg -y
 ```
 
-## **Instrucciones**
+## **2. Instrucciones**
 Ésto es una guía de usuario para poder ejecutar el programa, el cuál se recomienda seguir paso por paso para minimizar los problemas que se puedan generar durante la ejecución.
 
-### **Clonar**
+### **2.1 Clonar**
 
 Primero hay que descargar el repositorio desde la pestaña `<> Code` (de color verde) y seleccionar el `Download ZIP`. Al finalizar la descarga hay que descomprimir el contenido y moverlo a `Program Files` en la siguiente ruta:
 ```
 C:\Program Files
 ```
 
-### **Instalación local**
+### **2.2 Instalación local**
 
 Ya entrando a la carpeta creada al haber descomprimido el `ZIP`, y moverlo a `Program Files`, tendremos que hacer doble click, o abrir, al archivo `install.bat`, el cuál abrira un `CMD` donde instalará todas las dependencias necesarias para funcionar. Para asegurarse de que estés en la ubicación necesaria, debes fijarte de que la dirección sea:
 ```
 C:\Program Files\Whisper-Transcriptor
 ```
 
-### **Ejecución**
+### **2.3 Ejecución**
 
 Para ejecutar este programa debe hacer doble click, o abrir, el archivo `TranscriptorApp.exe`.
 
