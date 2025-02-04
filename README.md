@@ -12,13 +12,27 @@ Miguel Contreras; Diego Molina.
 
 # **Índice**
 
-1. [Instrucciones](#instrucciones)
+1. [Requisitos previos](#requisitos-previos)
+
+2. [Instrucciones](#instrucciones)
     1. [Clonar](#clonar)
     2. [Instalación local](#instalacion-local)
     3. [Ejecución](#ejecucion)
 
+## **Requisitos previos**
+Para empezar a proceder con las instrucciones de instalación, primero requiere tener (verificar en orden):
+`Python 1.12.6`, el cuál se puede descargar [aquí](https://www.python.org/downloads/release/python-3126/).
+`Chocolatey`, que para instalar necesita abrir una línea de comandos en `PowerShell` en modo de **administrador** e ingresar lo siguiente:
+```
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+```
+`FFmpeg`, el cual requiere de **Chocolatey**, y que para instalarse se necesita **reiniciar** el `PowerShell` en modo de **administrador** e ingresar lo siguiente:
+```
+choco install ffmpeg -y
+```
+
 ## **Instrucciones**
-Ésto es una guía de usuario para poder ejecutar el programa, el cuál se recomienda seguir paso por paso para minimizar los problemas que se puedan generar durante la ejecución. Requiere tener instalado `Python 1.12.6`, el cuál se puede descargar [aquí](https://www.python.org/downloads/release/python-3126/).
+Ésto es una guía de usuario para poder ejecutar el programa, el cuál se recomienda seguir paso por paso para minimizar los problemas que se puedan generar durante la ejecución.
 
 ### **Clonar**
 
