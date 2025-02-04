@@ -39,8 +39,17 @@ def main(page: ft.Page):
 
     ### EJECUTAR COMANDO ###
     def run_con(cmd):
+        # Ruta al script de activación del entorno virtual
+        venv_activate = os.path.abspath(".venv/Scripts/activate")  # Ajusta la ruta según sea necesario
+        if not os.path.exists(venv_activate):
+            result_con.controls.append(ft.Text("No se encontró el entorno virtual", color="red"))
+            page.update()
+
+        # Comando para activar el entorno virtual y ejecutar el comando
+        full_cmd = f'cmd.exe /c "{venv_activate} && {cmd}"'
+
         process = subprocess.Popen(
-            cmd,
+            full_cmd,
             shell=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
