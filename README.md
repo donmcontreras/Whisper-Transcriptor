@@ -22,7 +22,7 @@ Miguel Contreras; Diego Molina.
 
 ### **Clonar**
 
-Primero hay que descargar el repositorio desde la pestaña `<> Code` (de color verde) y seleccionando el `Download ZIP`. Al finalizar la descarga hay que descomprimir el contenido y moverlo a `Program Files` en la siguiente ruta:
+Primero hay que descargar el repositorio desde la pestaña `<> Code` (de color verde) y seleccionar el `Download ZIP`. Al finalizar la descarga hay que descomprimir el contenido y moverlo a `Program Files` en la siguiente ruta:
 ```
 C:\Program Files
 ```
