@@ -52,7 +52,7 @@ def main(page: ft.Page):
         full_cmd = f'cmd.exe /c "{venv_activate} && "{cmd}""'
 
         process = subprocess.Popen(
-            cmd,
+            full_cmd,
             shell=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
