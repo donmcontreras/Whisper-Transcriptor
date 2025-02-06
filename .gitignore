@@ -164,3 +164,4 @@ storage/temp
 main-tuner.py
 /Whisper-Transcript
 /.vscode
+/assets/audio

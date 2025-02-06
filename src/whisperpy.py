@@ -1,22 +1,20 @@
-import warnings
+import whisper, torch, sys, os, warnings
+from pydub import AudioSegment
+
 warnings.filterwarnings("ignore", category=DeprecationWarning, module='pydub.utils')
 warnings.filterwarnings("ignore", category=FutureWarning, module='whisper')  # Si hay actualización de whisper, revisar
-
-import whisper
-import torch
-from pydub import AudioSegment
-import sys
-import os
+warnings.filterwarnings("ignore", message="Performing inference on CPU when CUDA is available")
+warnings.filterwarnings("ignore", message="FP16 is not supported on CPU; using FP32 instead")
 
 ### FUNCION PRINCIPAL DE WHISPER ###
-def whisperPythonFunction(file_load, model="medium", device="cpu", output_path="storage/temp/transcripcion_temp.txt"):
+def whisperPythonFunction(file_load, model="medium", device="cpu", output_path="storage/temp/transcripcion_temp.txt", timestmp=True):
     device = get_device(device)
     print(f"Utilizando: {device}")
 
     model = load_model(model, device)
 
     result = transcribe_audio(model, file_load)
-    save_transcription(result, output_path)
+    save_transcription(result, output_path, timestmp)
     return result
 
 ### OBTENER DISPOSITIVO ###
@@ -51,7 +49,7 @@ def transcribe_audio(model, file_load):
     return model.transcribe(file_load, language="es", verbose=False)
 
 ### GUARDAR TRANSCRIPCIÓN ###
-def save_transcription(result, output_path):
+def save_transcription(result, output_path, timestmp2):
     def format_time(seconds):
         hours = int(seconds // 3600)
         minutes = int(seconds % 3600 // 60)
@@ -61,10 +59,13 @@ def save_transcription(result, output_path):
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, "w", encoding="utf-8") as f:
         for segment in result["segments"]:
-            start_time_segment = format_time(segment["start"])
-            end_time_segment = format_time(segment["end"])
             text = segment["text"].strip()
-            f.write(f"[{start_time_segment} - {end_time_segment}] {text} \n")
+            if timestmp2:
+                start_time_segment = format_time(segment["start"])
+                end_time_segment = format_time(segment["end"])
+                f.write(f"[{start_time_segment} - {end_time_segment}] {text} \n")
+            else:
+                f.write(f"{text} \n")
 
 ### EJECUCIÓN DE WHISPER ###
 if __name__ == "__main__":
@@ -72,8 +73,9 @@ if __name__ == "__main__":
         file_load = sys.argv[1]
         model = sys.argv[2]
         device = sys.argv[3]
+        timestmp = sys.argv[4].lower() == 'true'
         output_path = "storage/temp/transcripcion_temp.txt"
-        whisperPythonFunction(file_load, model, device, output_path)
+        whisperPythonFunction(file_load, model, device, output_path, timestmp)
     except Exception as e:
         print(f"Error: {e}")
         sys.exit(1)

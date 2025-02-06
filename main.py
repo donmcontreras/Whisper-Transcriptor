@@ -1,8 +1,5 @@
 import flet as ft
-import torch
-import asyncio
-import subprocess
-import os
+import torch, asyncio, subprocess, os
 
 def main(page: ft.Page):
 
@@ -18,14 +15,20 @@ def main(page: ft.Page):
         file_name = selected_files.value
         selected_model = model_dropdown.value
         selected_device = device_dropdown.value
+        selected_time = timestmp.value
+        if script_dropdown.value == "C++":
+            selected_script = "whispercppy.py"
+        else:
+            selected_script = "whisperpy.py"
         transcribe_button.disabled = True
         result_con.controls.clear()
         transcription_done.value = ""
+        save_file_rute.value = ""
         page.update()
         try:
             if file_name != "Cancelado" and file_name is not None:
-                whisper_python_path = os.path.abspath("src/whisperpy.py")
-                commandtxt.value = f'python "{whisper_python_path}" "{file_name}" {selected_model} {selected_device}'
+                whisper_path = os.path.abspath(f"src/{selected_script}")
+                commandtxt.value = f'python "{whisper_path}" "{file_name}" {selected_model} {selected_device} {selected_time}'
                 run_con(commandtxt.value)
             else:
                 transcription_done.value = "No se seleccionó un archivo"
@@ -49,7 +52,7 @@ def main(page: ft.Page):
         full_cmd = f'cmd.exe /c "{venv_activate} && "{cmd}""'
 
         process = subprocess.Popen(
-            full_cmd,
+            cmd,
             shell=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
@@ -76,6 +79,13 @@ def main(page: ft.Page):
             with open("storage/temp/transcripcion_temp.txt", "r", encoding="utf-8") as f:
                 transcription_done.value = f.read()
                 export_button.disabled = False
+        except UnicodeDecodeError:
+            try:
+                with open("storage/temp/transcripcion_temp.txt", "r", encoding="utf-8", errors="ignore") as f:
+                    transcription_done.value = f.read()
+                    export_button.disabled = False
+            except Exception as e:
+                transcription_done.value = f"Error al leer el archivo de transcripción: {e}"
         except Exception as e:
             transcription_done.value = f"Error al leer el archivo de transcripción: {e}"
         
@@ -97,6 +107,24 @@ def main(page: ft.Page):
             save_file_rute.value = "Exportación cancelada"
         page.update()
 
+    ### CONTROLADOR DE EVENTOS PARA CAMBIO DE SELECCIÓN DEL SCRIPT ###
+    def script_changed(e):
+        if script_dropdown.value == "C++":
+            device_dropdown.options = [ft.dropdown.Option("cpu")]
+            device_dropdown.value = "cpu"
+            device_dropdown.disabled = True
+            timestmp.value = False
+            timestmp.disabled = True
+        else:
+            device_dropdown.options = [ft.dropdown.Option("cpu")]
+            if torch.cuda.is_available():
+                device_dropdown.options.append(ft.dropdown.Option("cuda"))
+            device_dropdown.value = "cpu"
+            device_dropdown.disabled = False
+            timestmp.disabled = False
+        device_dropdown.update()
+        timestmp.update()
+
     ### CONFIGURACIÓN DE LA PÁGINA ###
     page.window.width = 800
     page.window.height = 800
@@ -114,11 +142,10 @@ def main(page: ft.Page):
     commandtxt = ft.TextField(color="black", cursor_color="black", on_submit=lambda e: run_con(commandtxt.value))
     result_con = ft.ListView(expand=1, spacing=5, padding=5, auto_scroll=True)
     terminal_ct = ft.Column([result_con])
+    timestmp = ft.Checkbox(label="Agregar marcas\nde tiempo", value=False, disabled=True)
 
     model_dropdown = ft.Dropdown(
         options=[
-            ft.dropdown.Option("tiny"),
-            ft.dropdown.Option("base"),
             ft.dropdown.Option("small"),
             ft.dropdown.Option("medium"),
             ft.dropdown.Option("large"),
@@ -129,6 +156,19 @@ def main(page: ft.Page):
         width=100,
         height=50,
         color=ft.Colors.BLUE,
+    )
+
+    script_dropdown = ft.Dropdown(
+        options=[
+            ft.dropdown.Option("C++"),
+            ft.dropdown.Option("Python")
+        ],
+        value="C++",
+        label="Seleccionar script",
+        width=100,
+        height=50,
+        color=ft.Colors.BLUE,
+        on_change=script_changed  # Asignar el controlador de eventos aquí
     )
 
     cuda_available = torch.cuda.is_available()
@@ -143,7 +183,7 @@ def main(page: ft.Page):
         width=100,
         height=50,
         color=ft.Colors.BLUE,
-        disabled=not cuda_available
+        disabled=True
     )
 
     export_button = ft.ElevatedButton(
@@ -172,9 +212,11 @@ def main(page: ft.Page):
             selected_files,
             ft.Row(
                 [
+                    script_dropdown,
                     model_dropdown,
                     device_dropdown,
-                    transcribe_button
+                    transcribe_button,
+                    timestmp
                 ],
                 alignment=ft.MainAxisAlignment.CENTER
             ),
