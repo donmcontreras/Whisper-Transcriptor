@@ -28,10 +28,12 @@ Para empezar a proceder con las instrucciones de instalación, primero requiere 
 Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 ```
 
-**`FFmpeg`**, el cual requiere de **Chocolatey**, y que, para instalarse, se necesita **reiniciar** el `PowerShell` en modo de **administrador** e ingresar lo siguiente:
+**`FFmpeg`**, el cual requiere de **Chocolatey**, y que, para instalarse, se necesita **reiniciar** el `PowerShell` _(a veces con el PowerShell se requiere reiniciar el computador, ya que aún no reconoce Chocolatey, en ese caso mejor inicia el CMD (Símbolo del sistema))_ e ingresar lo siguiente:
 ```
 choco install ffmpeg -y
 ```
+
+**`C++ Build Tools`**, el cuál se puede descargar [aquí]([https://www.python.org/downloads/release/python-3126/](https://visualstudio.microsoft.com/visual-cpp-build-tools/)). Se descargará `Visual Studio Installer`, y habrá que seleccionar, en "Cargas de trabajo", **"Desarrollo para el escritorio con C++"** y, en "Componentes individuales", seleccionar el `SDK` según el Windows que estes utilizando _(Windows 10 SDK (Última versión disponible) o Windows 11 SDK (Última versión disponible))_, y de ahí instalar.
 
 ## **2. Instrucciones**
 Ésto es una guía de usuario para poder ejecutar el programa, el cuál se recomienda seguir paso por paso para minimizar los problemas que se puedan generar durante la ejecución.
