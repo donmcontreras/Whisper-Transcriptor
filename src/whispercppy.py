@@ -1,4 +1,4 @@
-import sys, os
+import sys, os, time
 from pydub import AudioSegment
 from pywhispercpp.model import Model
 
@@ -8,8 +8,16 @@ def whisperPythonFunction(file_load, model="medium", output_path="storage/temp/t
 
     model = load_model(model)
 
+    start_time = time.time()  # Iniciar el temporizador
     result = transcribe_audio(model, file_load)
+    end_time = time.time()  # Detener el temporizador
+
     save_transcription(result, output_path)
+
+    elapsed_time = end_time - start_time
+    formatted_time = format_time(elapsed_time)
+    print(f"Tiempo de transcripción: {formatted_time}")
+
     return result
 
 ### CARGAR MODELO ###
@@ -35,7 +43,7 @@ def transcribe_audio(model, file_load):
     print("Transcribiendo en Español")
     audio_duration = get_audio_duration(file_load)
     print(f"Duración de audio: {audio_duration}")
-    result = model.transcribe(file_load, language="es", print_realtime=True)
+    result = model.transcribe(file_load, language="es")
     return result
 
 ### GUARDAR TRANSCRIPCIÓN ###
@@ -46,11 +54,22 @@ def save_transcription(result, output_path):
             f.write(segment.text)
             f.write("\n")
 
+### FORMATEAR TIEMPO ###
+def format_time(seconds):
+    hours = int(seconds // 3600)
+    minutes = int((seconds % 3600) // 60)
+    seconds = seconds % 60
+    return f"{hours:02}:{minutes:02}:{seconds:06.3f}"
+
 ### EJECUCIÓN DE WHISPER ###
 if __name__ == "__main__":
     try:
         file_load = sys.argv[1]
         model = sys.argv[2]
+        if model == "large":
+            model = "large-v3"
+        elif model == "turbo":
+            model = "large-v3-turbo"
         output_path = "storage/temp/transcripcion_temp.txt"
         whisperPythonFunction(file_load, model, output_path)
     except Exception as e:

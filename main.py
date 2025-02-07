@@ -49,10 +49,10 @@ def main(page: ft.Page):
             page.update()
 
         # Comando para activar el entorno virtual y ejecutar el comando
-        full_cmd = f'cmd.exe /c "{venv_activate} && "{cmd}""'
+        full_cmd = f'cmd.exe /c "{venv_activate} && {cmd}"'
 
         process = subprocess.Popen(
-            full_cmd,
+            cmd,
             shell=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
@@ -205,7 +205,7 @@ def main(page: ft.Page):
             ft.Row(
                 [
                     ft.Text("Seleccione archivo: ", size=20, color=ft.Colors.BLACK),
-                    ft.ElevatedButton("Seleccionar archivo", icon=ft.Icons.UPLOAD_FILE, on_click=lambda _: pick_files_dialog.pick_files(allow_multiple=False, allowed_extensions=['mp4', 'm4a', 'mp3', 'avi', 'mpeg']))
+                    ft.ElevatedButton("Seleccionar archivo", icon=ft.Icons.UPLOAD_FILE, on_click=lambda _: pick_files_dialog.pick_files(allow_multiple=False, allowed_extensions=['mp4', 'm4a', 'mp3', 'mpeg', 'mpga', 'wav', 'webm']))
                 ],
                 alignment=ft.MainAxisAlignment.CENTER,
             ),

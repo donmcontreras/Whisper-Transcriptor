@@ -2,4 +2,3 @@ openai-whisper
 asyncio
 flet
 pydub
-pywhispercpp
