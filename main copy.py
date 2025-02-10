@@ -21,7 +21,6 @@ def main(page: ft.Page):
         else:
             selected_script = "whisperpy.py"
         transcribe_button.disabled = True
-        export_button.disabled = True
         result_con.controls.clear()
         transcription_done.value = ""
         save_file_rute.value = ""
@@ -133,13 +132,11 @@ def main(page: ft.Page):
     page.window.maximizable = False
     page.title = "Transcriptor Multimedia"
     page.padding = 0
-    page.theme_mode = ft.ThemeMode.LIGHT
 
     ### ELEMENTOS DE LA INTERFAZ ###
     pick_files_dialog = ft.FilePicker(on_result=pick_files_result)
     save_file_dialog = ft.FilePicker(on_result=export_transcription)
-    selected_files = ft.Text(color=ft.Colors.BLACK, height=50)
-    selectedFiles = ft.Container(selected_files, padding=20)
+    selected_files = ft.Text(color=ft.Colors.BLACK)
     save_file_rute = ft.Text(color=ft.Colors.BLACK)
     transcription_done = ft.Text(color=ft.Colors.BLACK, expand=1)
     commandtxt = ft.TextField(color="black", cursor_color="black", on_submit=lambda e: run_con(commandtxt.value))
@@ -209,22 +206,20 @@ def main(page: ft.Page):
         [
             ft.Row(
                 [
-                    ft.Text("Seleccione archivo: ", size=20, color=ft.Colors.BLACK, style=ft.TextStyle(weight=ft.FontWeight.BOLD)),
+                    ft.Text("Seleccione archivo: ", size=20, color=ft.Colors.BLACK),
                     ft.ElevatedButton("Seleccionar archivo", icon=ft.Icons.UPLOAD_FILE, on_click=lambda _: pick_files_dialog.pick_files(allow_multiple=False, allowed_extensions=['mp4', 'm4a', 'mp3', 'mpeg', 'mpga', 'wav', 'webm']))
                 ],
                 alignment=ft.MainAxisAlignment.CENTER,
-                spacing=20
             ),
-            selectedFiles,
+            selected_files,
             ft.Row(
                 [
                     script_dropdown,
                     model_dropdown,
                     device_dropdown,
-                    timestmp,
-                    transcribe_button
+                    transcribe_button,
+                    timestmp
                 ],
-                spacing=20,
                 alignment=ft.MainAxisAlignment.CENTER
             ),
         ],
@@ -234,7 +229,7 @@ def main(page: ft.Page):
     )
 
     lv = ft.ListView(expand=1, spacing=5, padding=10, auto_scroll=False, controls=[transcription_done])
-    textscroll = ft.Container(lv, width=750, height=250)
+    textscroll = ft.Container(lv, width=750, height=260)
     command = ft.Container(terminal_ct, width=750, height=100, margin=ft.margin.only(top=10), border=ft.border.all())
 
     bot = ft.Column(
@@ -255,8 +250,8 @@ def main(page: ft.Page):
         text_align=ft.TextAlign.JUSTIFY,
         spans=[
             ft.TextSpan("herramienta", ft.TextStyle(weight=ft.FontWeight.BOLD)),
-            ft.TextSpan(" para la transcripción de audios que, en general, tiene una precisión del 88%, por lo que tiene margen de error y"),
-            ft.TextSpan(" se recomienda verificar y corregir los textos entregados", ft.TextStyle(weight=ft.FontWeight.BOLD)),
+            ft.TextSpan(" para la transcripción de audios que, en general, tiene una precisión del 88%, por lo que tiene margen de error y se "),
+            ft.TextSpan("recomienda verificar y corregir los textos entregados", ft.TextStyle(weight=ft.FontWeight.BOLD)),
             ft.TextSpan(" (puede exportar el resultado y corregir dentro del ''.txt'' que hizo)."),
             ft.TextSpan(" Dependiendo del modelo seleccionado, y de los recursos del computador, el tiempo de transcripción puede variar, estando cerca de la misma duración del audio.\n"),
             ft.TextSpan("\nErrores comunes:"),
@@ -270,19 +265,19 @@ def main(page: ft.Page):
     )
 
     ### CONTENEDOR SUPERIOR ###
-    superior = ft.Container(top_r, width=750, height=260, margin=ft.margin.only(top=10), border=ft.border.all())
+    superior = ft.Container(top_r, width=750, height=200, margin=ft.margin.only(top=20), border=ft.border.all())
 
     ### CONTENEDOR MEDIO ###
     midterm = ft.Column(spacing=10, controls=[command])
 
     ### CONTENEDOR INFERIOR ###
-    inferior = ft.Container(bot, width=1000, height=330, margin=ft.margin.only(top=10), border=ft.border.all())
+    inferior = ft.Container(bot, width=750, height=380, margin=ft.margin.only(top=10), border=ft.border.all())
 
     ### COLUMNA IZQUIERDA ###
-    colIzq = ft.Column(spacing=10, controls=[superior, midterm])
+    colIzq = ft.Column(spacing=10, controls=[superior, midterm, inferior])
 
     ### CONTENEDOR DERECHA ###
-    derecha = ft.Container(textoDerecha, width=380, height=380, margin=ft.margin.only(left=10), border=ft.border.all(), padding=10)
+    derecha = ft.Container(textoDerecha, width=380, height=650, margin=ft.margin.only(left=10), border=ft.border.all(), padding=10)
 
     ### COLUMNA DERECHA ###
     colDer = ft.Column(spacing=10, controls=[derecha], alignment=ft.MainAxisAlignment.CENTER)
@@ -291,12 +286,10 @@ def main(page: ft.Page):
     contCol = ft.Row([colIzq, colDer], alignment=ft.MainAxisAlignment.CENTER)
 
     ### CONTENEDOR GENERAL ###
-    contenedor = ft.Container(contCol, width=page.window.width, height=400, alignment=ft.alignment.top_center)
-    columnaAbajo = ft.Column(spacing=10, controls=[inferior])
-    contenedorAbajo = ft.Container(columnaAbajo, width=page.window.width, height=page.window.height, alignment=ft.alignment.top_center)
+    contenedor = ft.Container(contCol, width=page.window.width, height=page.window.height, bgcolor=ft.Colors.WHITE, alignment=ft.alignment.top_center)
 
     page.overlay.extend([pick_files_dialog, save_file_dialog])
-    page.add(contenedor, contenedorAbajo)
+    page.add(contenedor)
     page.update()
 
 ft.app(main)

@@ -1,4 +1,4 @@
-import whisper, torch, sys, os, warnings
+import whisper, torch, sys, os, warnings, time
 from pydub import AudioSegment
 
 warnings.filterwarnings("ignore", category=DeprecationWarning, module='pydub.utils')
@@ -13,7 +13,14 @@ def whisperPythonFunction(file_load, model="medium", device="cpu", output_path="
 
     model = load_model(model, device)
 
+    start_time = time.time()  # Iniciar el temporizador
     result = transcribe_audio(model, file_load)
+    end_time = time.time()  # Detener el temporizador
+
+    elapsed_time = end_time - start_time
+    formatted_time = format_time(elapsed_time)
+    print(f"Tiempo de transcripción: {formatted_time}")
+    
     save_transcription(result, output_path, timestmp)
     return result
 
@@ -67,6 +74,13 @@ def save_transcription(result, output_path, timestmp2):
             else:
                 f.write(f"{text} \n")
 
+### FORMATEAR TIEMPO ###
+def format_time(seconds):
+    hours = int(seconds // 3600)
+    minutes = int((seconds % 3600) // 60)
+    seconds = seconds % 60
+    return f"{hours:02}:{minutes:02}:{seconds:06.3f}"
+
 ### EJECUCIÓN DE WHISPER ###
 if __name__ == "__main__":
     try:
@@ -75,6 +89,16 @@ if __name__ == "__main__":
         device = sys.argv[3]
         timestmp = sys.argv[4].lower() == 'true'
         output_path = "storage/temp/transcripcion_temp.txt"
+        if model == "Pequeño":
+            model = "small"
+        elif model == "Mediano":
+            model = "medium"
+        #elif model == "Grande":
+        #    model = "large"
+        #elif model == "Turbo":
+        #    model = "turbo"
+        else:
+            model = "medium"
         whisperPythonFunction(file_load, model, device, output_path, timestmp)
     except Exception as e:
         print(f"Error: {e}")

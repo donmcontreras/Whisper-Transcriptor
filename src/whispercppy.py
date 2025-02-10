@@ -1,6 +1,7 @@
 import sys, os, time
 from pydub import AudioSegment
 from pywhispercpp.model import Model
+from tqdm import tqdm
 
 ### FUNCION PRINCIPAL DE WHISPERCPP ###
 def whisperPythonFunction(file_load, model="medium", output_path="storage/temp/transcripcion_temp.txt"):
@@ -43,7 +44,15 @@ def transcribe_audio(model, file_load):
     print("Transcribiendo en Español")
     audio_duration = get_audio_duration(file_load)
     print(f"Duración de audio: {audio_duration}")
-    result = model.transcribe(file_load, language="es")
+
+    # Create a progress bar
+    with tqdm(total=100, desc="Transcribiendo", unit="frames", ncols=85) as pbar:
+        def progress_callback(progress):
+            pbar.update(progress - pbar.n)
+            pbar.refresh()  # Ensure the progress bar is updated in real time
+        
+        result = model.transcribe(file_load, language="es", progress_callback=progress_callback)
+    
     return result
 
 ### GUARDAR TRANSCRIPCIÓN ###
@@ -66,10 +75,16 @@ if __name__ == "__main__":
     try:
         file_load = sys.argv[1]
         model = sys.argv[2]
-        if model == "large":
-            model = "large-v3"
-        elif model == "turbo":
-            model = "large-v3-turbo"
+        if model == "Pequeño":
+            model = "small"
+        elif model == "Mediano":
+            model = "medium"
+        #elif model == "Grande":
+        #    model = "large-v3"
+        #elif model == "Turbo":
+        #    model = "large-v3-turbo"
+        else:
+            model = "medium"
         output_path = "storage/temp/transcripcion_temp.txt"
         whisperPythonFunction(file_load, model, output_path)
     except Exception as e:
