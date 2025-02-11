@@ -1,5 +1,4 @@
 import sys, os, time
-from pydub import AudioSegment
 from pywhispercpp.model import Model
 from tqdm import tqdm
 
@@ -27,23 +26,10 @@ def load_model(model):
     model = Model(model)
     return model
 
-### OBTENER DURACIÓN DE AUDIO ###
-def get_audio_duration(file_path):
-    audio = AudioSegment.from_file(file_path)
-    duration_ms = len(audio)
-    duration_s = duration_ms / 1000
-    hours = int(duration_s // 3600)
-    minutes = int(duration_s % 3600 // 60)
-    seconds = duration_s % 60
-    formatted_duration = f"{hours:02}:{minutes:02}:{seconds:06.3f}"
-    return formatted_duration
-
 ### INSTRUCCIONES PARA TRANSCRIBIR AUDIO ###
 def transcribe_audio(model, file_load):
     print(f"Cargando archivo en {file_load}")
     print("Transcribiendo en Español")
-    audio_duration = get_audio_duration(file_load)
-    print(f"Duración de audio: {audio_duration}")
 
     # Create a progress bar
     with tqdm(total=100, desc="Transcribiendo", unit="frames", ncols=85) as pbar:

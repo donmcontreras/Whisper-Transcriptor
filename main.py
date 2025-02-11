@@ -1,14 +1,23 @@
 import flet as ft
 import torch, asyncio, subprocess, os
+from pydub import AudioSegment
 
 def main(page: ft.Page):
 
     ### SELECCIONAR ARCHIVO ###
     def pick_files_result(e: ft.FilePickerResultEvent):
-        selected_files.value = (
-            ", ".join(map(lambda f: f.path, e.files)) if e.files else "Cancelado"
-        )
+        if e.files:
+            file_path = e.files[0].path
+            selected_files.value = file_path
+            audio = AudioSegment.from_file(file_path)
+            duration = len(audio) / 1000  # Duración en segundos
+            progress_bar.value = 1.0  # Llenar la barra de progreso al 100%
+            duration_text.value = f"Duración: {duration:.2f} segundos"
+        else:
+            selected_files.value = "Cancelado"
         selected_files.update()
+        progress_bar.update()
+        duration_text.update()
 
     ### TRANSCRIBIR ARCHIVO ###
     async def transcribir(e):
@@ -16,10 +25,7 @@ def main(page: ft.Page):
         selected_model = model_dropdown.value
         selected_device = (device_dropdown.value).lower()
         selected_time = timestmp.value
-        if script_dropdown.value == "C++":
-            selected_script = "whispercppy.py"
-        else:
-            selected_script = "whisperpy.py"
+        selected_script = "whispercppy.py" if script_dropdown.value == "C++" else "whisperpy.py"
         transcribe_button.disabled = True
         export_button.disabled = True
         result_con.controls.clear()
@@ -48,6 +54,7 @@ def main(page: ft.Page):
         if not os.path.exists(venv_activate):
             result_con.controls.append(ft.Text("No se encontró el entorno virtual", color="red"))
             page.update()
+            return
 
         # Comando para activar el entorno virtual y ejecutar el comando
         full_cmd = f'cmd.exe /c "{venv_activate} && {cmd}"'
@@ -61,32 +68,28 @@ def main(page: ft.Page):
             encoding="utf-8"
         )
 
-        result_con.controls.append(ft.Text(cmd, color="black"))
+        result_con.controls.append(ft.Text(cmd, color=ft.Colors.BLACK if page.theme_mode == ft.ThemeMode.LIGHT else ft.Colors.WHITE, selectable=True))
         page.update()
         result_con.auto_scroll = True
 
-        for line in process.stdout:
-            result_con.controls.append(ft.Text(line, color="black"))
+        for line in iter(lambda: process.stdout.readline(), ""):
+            result_con.controls.append(ft.Text(line.strip(), color=ft.Colors.BLACK if page.theme_mode == ft.ThemeMode.LIGHT else ft.Colors.WHITE, selectable=True))
             page.update()
             result_con.auto_scroll = True
 
         process.stdout.close()
         process.wait()
+        if process.returncode != 0:
+            result_con.controls.append(ft.Text(f"Error al ejecutar el comando: {cmd}", color="red"))
+
         commandtxt.value = ""
         page.update()
         result_con.auto_scroll = True
 
         try:
-            with open("storage/temp/transcripcion_temp.txt", "r", encoding="utf-8") as f:
+            with open("storage/temp/transcripcion_temp.txt", "r", encoding="utf-8", errors="replace") as f:
                 transcription_done.value = f.read()
                 export_button.disabled = False
-        except UnicodeDecodeError:
-            try:
-                with open("storage/temp/transcripcion_temp.txt", "r", encoding="utf-8", errors="ignore") as f:
-                    transcription_done.value = f.read()
-                    export_button.disabled = False
-            except Exception as e:
-                transcription_done.value = f"Error al leer el archivo de transcripción: {e}"
         except Exception as e:
             transcription_done.value = f"Error al leer el archivo de transcripción: {e}"
         
@@ -126,6 +129,49 @@ def main(page: ft.Page):
         device_dropdown.update()
         timestmp.update()
 
+    ### AGRANDAR TEXTO ###
+    def agrandar_texto(e):
+        transcription_done.size += 1
+        transcription_done.update()
+
+    ### ACHICAR TEXTO ###
+    def achicar_texto(e):
+        transcription_done.size -= 1
+        transcription_done.update()
+
+    ### ALINEAR TEXTO ###
+    alignments = [ft.TextAlign.LEFT, ft.TextAlign.CENTER, ft.TextAlign.RIGHT, ft.TextAlign.JUSTIFY]
+    current_alignment_index = 0
+
+    def alinear_texto(e):
+        nonlocal current_alignment_index
+        current_alignment_index = (current_alignment_index + 1) % len(alignments)
+        transcription_done.text_align = alignments[current_alignment_index]
+        transcription_done.update()
+
+    ### ALTERNAR TEMA ###
+    def alternar_tema(e):
+        if page.theme_mode == ft.ThemeMode.LIGHT:
+            page.theme_mode = ft.ThemeMode.DARK
+            cambiar_colores(ft.Colors.WHITE, ft.Colors.SURFACE_CONTAINER_HIGHEST, ft.Colors.SURFACE_CONTAINER_HIGHEST)
+        else:
+            page.theme_mode = ft.ThemeMode.LIGHT
+            cambiar_colores(ft.Colors.BLACK, ft.Colors.ON_INVERSE_SURFACE, ft.Colors.LIGHT_BLUE_50)
+        page.update()
+
+    def cambiar_colores(text_color, bg_color, container_color):
+        text_elements = [selected_files, save_file_rute, transcription_done, commandtxt, textoDerecha, select_file_text, model_dropdown, script_dropdown, device_dropdown, duration_text]
+        for element in text_elements:
+            element.color = text_color
+        bg_elements = [select_file, transcribe_button, export_button, agrandar, achicar, alinear, alternar_tema_button, model_dropdown, script_dropdown, device_dropdown]
+        for element in bg_elements:
+            element.bgcolor = bg_color
+        selectedAudio.bgcolor = container_color
+        for control in result_con.controls:
+            if isinstance(control, ft.Text):
+                control.color = text_color
+        page.update()
+
     ### CONFIGURACIÓN DE LA PÁGINA ###
     page.window.width = 1200
     page.window.height = 800
@@ -139,9 +185,27 @@ def main(page: ft.Page):
     pick_files_dialog = ft.FilePicker(on_result=pick_files_result)
     save_file_dialog = ft.FilePicker(on_result=export_transcription)
     selected_files = ft.Text(color=ft.Colors.BLACK, height=50)
-    selectedFiles = ft.Container(selected_files, padding=20)
+    progress_bar = ft.ProgressBar(width=600, height=10, color=ft.Colors.BLUE)
+    duration_text = ft.Text(color=ft.Colors.BLACK, text_align=ft.TextAlign.CENTER)
+    selectedAudio = ft.Container(
+        ft.Column(
+            [
+                selected_files,
+                progress_bar,
+                duration_text
+            ],
+            spacing=5,
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER
+        ),
+        padding=5,
+        width=700,
+        height=100,
+        bgcolor=ft.Colors.LIGHT_BLUE_50,
+        shadow=ft.BoxShadow(blur_radius=2, offset=(0, 3)),
+        margin=ft.margin.only(bottom=10)
+    )
     save_file_rute = ft.Text(color=ft.Colors.BLACK)
-    transcription_done = ft.Text(color=ft.Colors.BLACK, expand=1)
+    transcription_done = ft.Text(color=ft.Colors.BLACK, expand=1, size=15, text_align="left", selectable=True)
     commandtxt = ft.TextField(color="black", cursor_color="black", on_submit=lambda e: run_con(commandtxt.value))
     result_con = ft.ListView(expand=1, spacing=5, padding=5, auto_scroll=True)
     terminal_ct = ft.Column([result_con])
@@ -158,7 +222,7 @@ def main(page: ft.Page):
         label="Seleccionar modelo",
         width=100,
         height=50,
-        color=ft.Colors.BLUE,
+        color=ft.Colors.BLACK,
     )
 
     script_dropdown = ft.Dropdown(
@@ -170,7 +234,7 @@ def main(page: ft.Page):
         label="Seleccionar script",
         width=100,
         height=50,
-        color=ft.Colors.BLUE,
+        color=ft.Colors.BLACK,
         on_change=script_changed  # Asignar el controlador de eventos aquí
     )
 
@@ -187,7 +251,7 @@ def main(page: ft.Page):
         label="Seleccionar dispositivo",
         width=100,
         height=50,
-        color=ft.Colors.BLUE,
+        color=ft.Colors.BLACK,
         disabled=device_disabled
     )
 
@@ -195,7 +259,9 @@ def main(page: ft.Page):
         "Exportar",
         icon=ft.Icons.DOWNLOAD,
         disabled=True,
-        on_click=lambda e: save_file_dialog.save_file(allowed_extensions=['txt'])
+        on_click=lambda e: save_file_dialog.save_file(allowed_extensions=['txt']),
+        width=130,
+        height=40
     )
 
     transcribe_button = ft.ElevatedButton(
@@ -204,18 +270,52 @@ def main(page: ft.Page):
         on_click=lambda e: asyncio.run(transcribir(e))
     )
 
+    agrandar = ft.ElevatedButton(
+        "Incrementar\ntamaño",
+        icon=ft.Icons.ZOOM_IN,
+        on_click=agrandar_texto,
+        width=130,
+        height=40
+    )
+
+    achicar = ft.ElevatedButton(
+        "Disminuir\ntamaño",
+        icon=ft.Icons.ZOOM_OUT,
+        on_click=achicar_texto,
+        width=130,
+        height=40
+    )
+
+    alinear = ft.ElevatedButton(
+        "Cambiar\nalineación",
+        icon=ft.Icons.FORMAT_ALIGN_LEFT,
+        on_click=alinear_texto,
+        width=130,
+        height=40
+    )
+
+    alternar_tema_button = ft.ElevatedButton(
+        "Alternar\ntema",
+        icon=ft.Icons.BRIGHTNESS_6,
+        on_click=alternar_tema
+    )
+
+    select_file_text = ft.Text("Seleccione archivo: ", size=20, color=ft.Colors.BLACK, style=ft.TextStyle(weight=ft.FontWeight.BOLD))
+    select_file = ft.ElevatedButton("Seleccionar archivo", icon=ft.Icons.UPLOAD_FILE, on_click=lambda _: pick_files_dialog.pick_files(allow_multiple=False, allowed_extensions=['mp4', 'm4a', 'mp3', 'mpeg', 'mpga', 'wav', 'webm']))
+
     ### DISEÑO DE LA INTERFAZ ###
     top_r = ft.Column(
         [
             ft.Row(
                 [
-                    ft.Text("Seleccione archivo: ", size=20, color=ft.Colors.BLACK, style=ft.TextStyle(weight=ft.FontWeight.BOLD)),
-                    ft.ElevatedButton("Seleccionar archivo", icon=ft.Icons.UPLOAD_FILE, on_click=lambda _: pick_files_dialog.pick_files(allow_multiple=False, allowed_extensions=['mp4', 'm4a', 'mp3', 'mpeg', 'mpga', 'wav', 'webm']))
+                    alternar_tema_button,
+                    select_file_text,
+                    select_file
                 ],
                 alignment=ft.MainAxisAlignment.CENTER,
                 spacing=20
             ),
-            selectedFiles,
+            selectedAudio,
             ft.Row(
                 [
                     script_dropdown,
@@ -233,19 +333,19 @@ def main(page: ft.Page):
         spacing=20
     )
 
+    textTools = ft.Column([agrandar, achicar, alinear, export_button], horizontal_alignment=ft.CrossAxisAlignment.CENTER, spacing=25)
     lv = ft.ListView(expand=1, spacing=5, padding=10, auto_scroll=False, controls=[transcription_done])
-    textscroll = ft.Container(lv, width=750, height=250)
-    command = ft.Container(terminal_ct, width=750, height=100, margin=ft.margin.only(top=10), border=ft.border.all())
+    textScroll = ft.Container(lv, width=800, height=280, margin=ft.margin.only(top=2), border=ft.border.all())
+    command = ft.Container(terminal_ct, width=750, height=80, margin=ft.margin.only(top=10), border=ft.border.all())
 
     bot = ft.Column(
         [
-            ft.Row([textscroll], alignment=ft.MainAxisAlignment.CENTER),
-            export_button,
+            ft.Row([textTools, textScroll], alignment=ft.MainAxisAlignment.CENTER, spacing=20),
             save_file_rute
         ],
         alignment=ft.MainAxisAlignment.CENTER,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-        spacing=10
+        spacing=5
     )
 
     textoDerecha = ft.Text(
@@ -270,7 +370,7 @@ def main(page: ft.Page):
     )
 
     ### CONTENEDOR SUPERIOR ###
-    superior = ft.Container(top_r, width=750, height=260, margin=ft.margin.only(top=10), border=ft.border.all())
+    superior = ft.Container(top_r, width=750, height=280, margin=ft.margin.only(top=10), border=ft.border.all())
 
     ### CONTENEDOR MEDIO ###
     midterm = ft.Column(spacing=10, controls=[command])
