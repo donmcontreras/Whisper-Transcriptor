@@ -80,7 +80,7 @@ def main(page: ft.Page):
         process.stdout.close()
         process.wait()
         if process.returncode != 0:
-            result_con.controls.append(ft.Text(f"Error al ejecutar el comando: {cmd}", color="red"))
+            result_con.controls.append(ft.Text(f"Error al ejecutar el comando: {cmd}", color="red", selectable=True))
 
         commandtxt.value = ""
         page.update()
