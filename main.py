@@ -12,7 +12,7 @@ def main(page: ft.Page):
             audio = AudioSegment.from_file(file_path)
             duration = len(audio) / 1000  # Duración en segundos
             progress_bar.value = 1.0  # Llenar la barra de progreso al 100%
-            duration_text.value = f"Duración: {duration:.2f} segundos"
+            duration_text.value = f"Duración: {format_time(duration)}"
         else:
             selected_files.value = "Cancelado"
         selected_files.update()
@@ -171,6 +171,13 @@ def main(page: ft.Page):
             if isinstance(control, ft.Text):
                 control.color = text_color
         page.update()
+
+    ### FORMATEAR TIEMPO ###
+    def format_time(seconds):
+        hours = int(seconds // 3600)
+        minutes = int((seconds % 3600) // 60)
+        seconds = seconds % 60
+        return f"{hours:02}:{minutes:02}:{seconds:06.3f}"
 
     ### CONFIGURACIÓN DE LA PÁGINA ###
     page.window.width = 1200
