@@ -167,7 +167,7 @@ def main(page: ft.Page):
         text_elements = [selected_files, save_file_rute, transcription_done, commandtxt, textoDerecha, select_file_text, model_dropdown, script_dropdown, device_dropdown, duration_text]
         for element in text_elements:
             element.color = text_color
-        bg_elements = [select_file, transcribe_button, export_button, agrandar, achicar, alinear, alternar_tema_button, model_dropdown, script_dropdown, device_dropdown]
+        bg_elements = [select_file, transcribe_button, export_button, agrandar, achicar, alinear, alternar_tema_button, model_dropdown, script_dropdown, device_dropdown, help_button]
         for element in bg_elements:
             element.bgcolor = bg_color
         selectedAudio.bgcolor = container_color
@@ -220,7 +220,26 @@ def main(page: ft.Page):
     commandtxt = ft.TextField(color="black", cursor_color="black", on_submit=lambda e: run_con(commandtxt.value))
     result_con = ft.ListView(expand=1, spacing=5, padding=5, auto_scroll=True)
     terminal_ct = ft.Column([result_con])
-    timestmp = ft.Checkbox(label="Agregar marcas\nde tiempo", value=False)
+    timestmp = ft.Checkbox(label="Agregar marcas\nde tiempo", value=False, disabled=True)
+    help = ft.AlertDialog(
+        title=ft.Text("Ayuda"),
+        content=ft.Text(
+            "- El Script es el lenguaje de computadora que se utilizará para transcribir, puede seleccionar entre C++ y Python, siendo el de C++ más eficiente (recomendado). Si este falla, cambiar al de Python.\n"
+            "- El Modelo es el encargado de transcribir el audio, puede seleccionar entre Pequeño y Mediano, siendo el Pequeño más eficiente y el Mediano más eficaz.\n"
+            "- El Dispositivo es el hardware que se utilizará para transcribir, puede seleccionar entre CPU (procesador) y CUDA (tarjeta gráfica), siendo la CPU más lenta, debido a que se procesa junto a lo que hace en el computador, y la CUDA más rápida, ya que se procesa en otro entorno especializado (no está disponible en C++, y si no posee tarjeta gráfica).\n"
+            "- Agregar marcas de tiempo es la opción de agregar marcas de tiempo a la transcripción, lo que permite saber cuándo se dijo algo en el audio (no disponible con C++).\n"
+            "- El botón de Exportar permite guardar la transcripción en un archivo de texto donde usted indique.\n",
+            width=600,
+            text_align=ft.TextAlign.JUSTIFY
+        ),
+        actions_alignment=ft.MainAxisAlignment.END,
+    )
+
+    help_button = ft.ElevatedButton(
+        "Ayuda",
+        icon=ft.Icons.HELP,
+        on_click=lambda e: page.open(help)
+    )
 
     model_dropdown = ft.Dropdown(
         options=[
@@ -238,10 +257,10 @@ def main(page: ft.Page):
 
     script_dropdown = ft.Dropdown(
         options=[
+            ft.dropdown.Option("C++"),
             ft.dropdown.Option("Python"),
-            ft.dropdown.Option("C++")
         ],
-        value="Python",
+        value="C++",
         label="Seleccionar script",
         width=100,
         height=50,
@@ -263,7 +282,7 @@ def main(page: ft.Page):
         width=100,
         height=50,
         color=ft.Colors.BLACK,
-        disabled=device_disabled
+        disabled=True if script_dropdown.value == "C++" else device_disabled
     )
 
     export_button = ft.ElevatedButton(
@@ -320,6 +339,7 @@ def main(page: ft.Page):
             ft.Row(
                 [
                     alternar_tema_button,
+                    help_button,
                     select_file_text,
                     select_file
                 ],
