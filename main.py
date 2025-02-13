@@ -26,6 +26,10 @@ def main(page: ft.Page):
     ### TRANSCRIBIR ARCHIVO ###
     async def transcribir(e):
         file_name = selected_files.value
+        if file_name == "Cancelado" or file_name is None:
+            page.open(transcribe_alert)
+            return
+
         selected_model = model_dropdown.value
         selected_device = (device_dropdown.value).lower()
         selected_time = timestmp.value
@@ -37,13 +41,9 @@ def main(page: ft.Page):
         save_file_rute.value = ""
         page.update()
         try:
-            if file_name != "Cancelado" and file_name is not None:
-                whisper_path = Path(f"src/{selected_script}").resolve()
-                commandtxt.value = f'python "{whisper_path}" "{file_name}" {selected_model} {selected_device} {selected_time}'
-                run_con(commandtxt.value)
-            else:
-                transcription_done.value = "No se seleccionó un archivo"
-                page.update()
+            whisper_path = Path(f"src/{selected_script}").resolve()
+            commandtxt.value = f'python "{whisper_path}" "{file_name}" {selected_model} {selected_device} {selected_time}'
+            run_con(commandtxt.value)
         except Exception as e:
             transcription_done.value = f"Error, el archivo seleccionado no es válido: {e}"
             page.update()
@@ -241,6 +241,12 @@ def main(page: ft.Page):
         on_click=lambda e: page.open(help)
     )
 
+    transcribe_alert = ft.AlertDialog(
+        title=ft.Text("Error"),
+        content=ft.Text("No ha seleccionado un archivo."),
+        actions_alignment=ft.MainAxisAlignment.CENTER,
+    )
+
     model_dropdown = ft.Dropdown(
         options=[
             ft.dropdown.Option("Pequeño"),
@@ -294,10 +300,21 @@ def main(page: ft.Page):
         height=40
     )
 
+    transcribe_modal = ft.AlertDialog(
+        modal=True,
+        title=ft.Text("Confirmar"),
+        content=ft.Text("¿Está seguro de transcribir el audio?"),
+        actions=[
+            ft.TextButton("Sí", on_click=lambda e: asyncio.run(transcribir(e))),
+            ft.TextButton("No", on_click=lambda e: page.close(transcribe_modal)),
+        ],
+        actions_alignment=ft.MainAxisAlignment.END,
+    )
+    
     transcribe_button = ft.ElevatedButton(
         "Transcribir",
         icon=ft.Icons.PLAY_ARROW,
-        on_click=lambda e: asyncio.run(transcribir(e))
+        on_click=lambda e: page.open(transcribe_modal),
     )
 
     agrandar = ft.ElevatedButton(

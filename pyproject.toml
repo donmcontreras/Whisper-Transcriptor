@@ -48,6 +48,7 @@ dependencies = [
   "tqdm==4.67.1",
   "typing-extensions==4.12.2",
   "urllib3==2.3.0",
+  "pywhispercpp",
 ]
 
 [tool.flet]
@@ -72,6 +73,9 @@ path = ""
 dev-dependencies = [
     "flet[all]==0.26.0",
 ]
+
+[tool.uv.sources]
+pywhispercpp = { git = "https://github.com/absadiki/pywhispercpp" }
 
 [tool.poetry]
 package-mode = false
