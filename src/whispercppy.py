@@ -1,10 +1,12 @@
-import sys, os, time
+import sys
+import time
+from pathlib import Path
 from pywhispercpp.model import Model
 from tqdm import tqdm
 
 ### FUNCION PRINCIPAL DE WHISPERCPP ###
 def whisperPythonFunction(file_load, model="medium", output_path="storage/temp/transcripcion_temp.txt"):
-    print(f"Utilizando: cpu")
+    print("Utilizando: cpu")
 
     model = load_model(model)
 
@@ -43,8 +45,9 @@ def transcribe_audio(model, file_load):
 
 ### GUARDAR TRANSCRIPCIÓN ###
 def save_transcription(result, output_path):
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, "w", encoding="utf-8") as f:
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("w", encoding="utf-8") as f:
         for segment in result:
             f.write(segment.text)
             f.write("\n")

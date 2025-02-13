@@ -33,7 +33,7 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 choco install ffmpeg -y
 ```
 
-**4. `git`**, el cuál se puede descargar [aquí](https://git-scm.com/downloads/win). Se descargará el instalador y, al abrirlo, habrá que avanzar hasta llegar a la selección de componentes, en donde habrá que desmarcar la casilla de integración al explorador de Windows, y en la siguiente pestaña desmarcar el crear una carpeta en el menú de inicio, de ahí avanzar hasta instalar.
+**4. `git`** _(si instalas con git)_, el cuál se puede descargar [aquí](https://git-scm.com/downloads/win). Se descargará el instalador y, al abrirlo, habrá que avanzar hasta llegar a la selección de componentes, en donde habrá que desmarcar la casilla de integración al explorador de Windows, y en la siguiente pestaña desmarcar el crear una carpeta en el menú de inicio, de ahí avanzar hasta instalar.
 
 **5. `C++ Build Tools`**, el cuál se puede descargar [aquí](https://visualstudio.microsoft.com/visual-cpp-build-tools/). Se descargará `Visual Studio Installer`, y habrá que seleccionar, en "Cargas de trabajo", **"Desarrollo para el escritorio con C++"** y, en "Componentes individuales", seleccionar el `SDK` según el Windows que estes utilizando _(Windows 10 SDK (Última versión disponible) o Windows 11 SDK (Última versión disponible))_, y de ahí instalar.
 

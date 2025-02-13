@@ -1,6 +1,9 @@
 import flet as ft
-import torch, asyncio, subprocess, os
+import torch
+import asyncio
+import subprocess
 from pydub import AudioSegment
+from pathlib import Path
 
 def main(page: ft.Page):
 
@@ -15,6 +18,7 @@ def main(page: ft.Page):
             duration_text.value = f"Duración: {format_time(duration)}"
         else:
             selected_files.value = "Cancelado"
+            duration_text.value = ""
         selected_files.update()
         progress_bar.update()
         duration_text.update()
@@ -34,7 +38,7 @@ def main(page: ft.Page):
         page.update()
         try:
             if file_name != "Cancelado" and file_name is not None:
-                whisper_path = os.path.abspath(f"src/{selected_script}")
+                whisper_path = Path(f"src/{selected_script}").resolve()
                 commandtxt.value = f'python "{whisper_path}" "{file_name}" {selected_model} {selected_device} {selected_time}'
                 run_con(commandtxt.value)
             else:
@@ -50,8 +54,8 @@ def main(page: ft.Page):
     ### EJECUTAR COMANDO ###
     def run_con(cmd):
         # Ruta al script de activación del entorno virtual
-        venv_activate = os.path.abspath(".venv/Scripts/activate")  # Ajusta la ruta según sea necesario
-        if not os.path.exists(venv_activate):
+        venv_activate = Path(".venv/Scripts/activate").resolve()
+        if not venv_activate.exists():
             result_con.controls.append(ft.Text("No se encontró el entorno virtual", color="red"))
             page.update()
             return
@@ -60,7 +64,7 @@ def main(page: ft.Page):
         full_cmd = f'cmd.exe /c "{venv_activate} && {cmd}"'
 
         process = subprocess.Popen(
-            cmd,
+            full_cmd,
             shell=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,

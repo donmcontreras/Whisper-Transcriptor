@@ -1,4 +1,9 @@
-import whisper, torch, sys, os, warnings, time
+import whisper
+import torch
+import sys
+import warnings
+import time
+from pathlib import Path
 
 warnings.filterwarnings("ignore", category=FutureWarning, module='whisper')  # Si hay actualización de whisper, revisar
 warnings.filterwarnings("ignore", message="Performing inference on CPU when CUDA is available")
@@ -48,7 +53,8 @@ def save_transcription(result, output_path, timestmp2):
         seconds = seconds % 60
         return f"{hours:02}:{minutes:02}:{seconds:06.3f}"
 
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, "w", encoding="utf-8") as f:
         for segment in result["segments"]:
             text = segment["text"].strip()
