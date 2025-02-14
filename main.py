@@ -23,13 +23,17 @@ def main(page: ft.Page):
         progress_bar.update()
         duration_text.update()
 
+    def transcribeDialog(archivo):
+        if archivo is None or archivo == "Cancelado":
+            page.open(transcribe_alert)
+            return
+        else:
+            page.open(transcribe_modal)
+            return
+
     ### TRANSCRIBIR ARCHIVO ###
     async def transcribir(e):
         file_name = selected_files.value
-        if file_name == "Cancelado" or file_name is None:
-            page.open(transcribe_alert)
-            return
-
         selected_model = model_dropdown.value
         selected_device = (device_dropdown.value).lower()
         selected_time = timestmp.value
@@ -305,7 +309,7 @@ def main(page: ft.Page):
         title=ft.Text("Confirmar"),
         content=ft.Text("¿Está seguro de transcribir el audio?"),
         actions=[
-            ft.TextButton("Sí", on_click=lambda e: asyncio.run(transcribir(e))),
+            ft.TextButton("Sí", on_click=lambda e: (page.close(transcribe_modal), asyncio.run(transcribir(e)))),
             ft.TextButton("No", on_click=lambda e: page.close(transcribe_modal)),
         ],
         actions_alignment=ft.MainAxisAlignment.END,
@@ -314,7 +318,7 @@ def main(page: ft.Page):
     transcribe_button = ft.ElevatedButton(
         "Transcribir",
         icon=ft.Icons.PLAY_ARROW,
-        on_click=lambda e: page.open(transcribe_modal),
+        on_click=lambda e: transcribeDialog(selected_files.value)
     )
 
     agrandar = ft.ElevatedButton(
