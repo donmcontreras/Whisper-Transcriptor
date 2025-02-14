@@ -33,6 +33,8 @@ def main(page: ft.Page):
 
     ### TRANSCRIBIR ARCHIVO ###
     async def transcribir(e):
+        global transcription_canceled
+        transcription_canceled = False
         file_name = selected_files.value
         selected_model = model_dropdown.value
         selected_device = (device_dropdown.value).lower()
@@ -40,6 +42,7 @@ def main(page: ft.Page):
         selected_script = "whispercppy.py" if script_dropdown.value == "C++" else "whisperpy.py"
         transcribe_button.disabled = True
         export_button.disabled = True
+        cancel_button.disabled = False
         result_con.controls.clear()
         transcription_done.value = ""
         save_file_rute.value = ""
@@ -49,14 +52,20 @@ def main(page: ft.Page):
             commandtxt.value = f'python "{whisper_path}" "{file_name}" {selected_model} {selected_device} {selected_time}'
             run_con(commandtxt.value)
         except Exception as e:
-            transcription_done.value = f"Error, el archivo seleccionado no es válido: {e}"
-            page.update()
+            if not transcription_canceled:
+                transcription_done.value = f"Error, el archivo seleccionado no es válido: {e}"
+                page.update()
+            else:
+                result_con.controls.append(ft.Text("Transcripción cancelada por el usuario.", color="red"))
+                page.update()
         finally:
             transcribe_button.disabled = False
+            cancel_button.disabled = True
             page.update()
 
     ### EJECUTAR COMANDO ###
     def run_con(cmd):
+        global process, transcription_canceled
         # Ruta al script de activación del entorno virtual
         venv_activate = Path(".venv/Scripts/activate").resolve()
         if not venv_activate.exists():
@@ -97,10 +106,12 @@ def main(page: ft.Page):
         try:
             with open("storage/temp/transcripcion_temp.txt", "r", encoding="utf-8", errors="replace") as f:
                 transcription_done.value = f.read()
-                export_button.disabled = False
+                if not transcription_canceled:
+                    export_button.disabled = False
+                else:
+                    export_button.disabled = True
         except Exception as e:
             transcription_done.value = f"Error al leer el archivo de transcripción: {e}"
-        
         page.update()
         transcribe_button.disabled = False
 
@@ -171,7 +182,7 @@ def main(page: ft.Page):
         text_elements = [selected_files, save_file_rute, transcription_done, commandtxt, textoDerecha, select_file_text, model_dropdown, script_dropdown, device_dropdown, duration_text]
         for element in text_elements:
             element.color = text_color
-        bg_elements = [select_file, transcribe_button, export_button, agrandar, achicar, alinear, alternar_tema_button, model_dropdown, script_dropdown, device_dropdown, help_button]
+        bg_elements = [select_file, transcribe_button, export_button, agrandar, achicar, alinear, alternar_tema_button, model_dropdown, script_dropdown, device_dropdown, help_button, cancel_button]
         for element in bg_elements:
             element.bgcolor = bg_color
         selectedAudio.bgcolor = container_color
@@ -186,6 +197,19 @@ def main(page: ft.Page):
         minutes = int((seconds % 3600) // 60)
         seconds = seconds % 60
         return f"{hours:02}:{minutes:02}:{seconds:06.3f}"
+    
+    ### CANCELAR TRANSCRIPCIÓN ###
+    def cancelar_transcripcion():
+        global process, transcription_canceled
+        transcription_canceled = True
+        if process:
+            process.terminate()
+            process = None
+        try:
+            transcription_done.value = "Transcripción cancelada por el usuario."
+        except Exception as e:
+            transcription_done.value = f"Error al cancelar la transcripción: {e}"
+        page.update()
 
     ### CONFIGURACIÓN DE LA PÁGINA ###
     page.window.width = 1200
@@ -232,7 +256,8 @@ def main(page: ft.Page):
             "- El Modelo es el encargado de transcribir el audio, puede seleccionar entre Pequeño y Mediano, siendo el Pequeño más eficiente y el Mediano más eficaz.\n"
             "- El Dispositivo es el hardware que se utilizará para transcribir, puede seleccionar entre CPU (procesador) y CUDA (tarjeta gráfica), siendo la CPU más lenta, debido a que se procesa junto a lo que hace en el computador, y la CUDA más rápida, ya que se procesa en otro entorno especializado (no está disponible en C++, y si no posee tarjeta gráfica).\n"
             "- Agregar marcas de tiempo es la opción de agregar marcas de tiempo a la transcripción, lo que permite saber cuándo se dijo algo en el audio (no disponible con C++).\n"
-            "- El botón de Exportar permite guardar la transcripción en un archivo de texto donde usted indique.\n",
+            "- El botón de Exportar permite guardar la transcripción en un archivo de texto donde usted indique.\n"
+            "- El botón de Cancelar permite detener la transcripción en cualquier momento, eso sí, hay ocasiones en las que puede demorar.",
             width=600,
             text_align=ft.TextAlign.JUSTIFY
         ),
@@ -318,7 +343,27 @@ def main(page: ft.Page):
     transcribe_button = ft.ElevatedButton(
         "Transcribir",
         icon=ft.Icons.PLAY_ARROW,
-        on_click=lambda e: transcribeDialog(selected_files.value)
+        on_click=lambda e: transcribeDialog(selected_files.value),
+        width=110
+    )
+
+    cancel_modal = ft.AlertDialog(
+        modal=True,
+        title=ft.Text("Cancelar"),
+        content=ft.Text("¿Está seguro de cancelar la transcripción?"),
+        actions=[
+            ft.TextButton("Sí", on_click=lambda e: (page.close(cancel_modal), cancelar_transcripcion())),
+            ft.TextButton("No", on_click=lambda e: page.close(cancel_modal)),
+        ],
+        actions_alignment=ft.MainAxisAlignment.END
+    )
+
+    cancel_button = ft.ElevatedButton(
+        "Cancelar",
+        icon=ft.Icons.CANCEL,
+        on_click=lambda e: page.open(cancel_modal),
+        disabled=True,
+        width=110
     )
 
     agrandar = ft.ElevatedButton(
@@ -374,7 +419,7 @@ def main(page: ft.Page):
                     model_dropdown,
                     device_dropdown,
                     timestmp,
-                    transcribe_button
+                    ft.Column([transcribe_button, cancel_button], alignment=ft.MainAxisAlignment.CENTER)
                 ],
                 spacing=20,
                 alignment=ft.MainAxisAlignment.CENTER
