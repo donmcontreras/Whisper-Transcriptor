@@ -60,6 +60,7 @@ C:
 ```
 
 ### **2.2. Instalación local**
+Aquí depende de si instalaste `git`, o por si alguna razón el internet no te deja conectarte a `GitHub` (como cuando el Proxy no permite esta conexión).
 
 #### **2.2.1 Instalación con uso de git**
 
