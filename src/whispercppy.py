@@ -5,7 +5,7 @@ from pywhispercpp.model import Model
 from tqdm import tqdm
 
 ### FUNCION PRINCIPAL DE WHISPERCPP ###
-def whisperPythonFunction(file_load, model="medium", output_path="storage/temp/transcripcion_temp.txt"):
+def whisperPythonFunction(file_load, model="medium", output_path="storage/temp/transcripcion_temp.txt", timestmp=True):
     print("Utilizando: cpu")
 
     model = load_model(model)
@@ -14,7 +14,7 @@ def whisperPythonFunction(file_load, model="medium", output_path="storage/temp/t
     result = transcribe_audio(model, file_load)
     end_time = time.time()  # Detener el temporizador
 
-    save_transcription(result, output_path)
+    save_transcription(result, output_path, timestmp)
 
     elapsed_time = end_time - start_time
     formatted_time = format_time(elapsed_time)
@@ -44,13 +44,18 @@ def transcribe_audio(model, file_load):
     return result
 
 ### GUARDAR TRANSCRIPCIÓN ###
-def save_transcription(result, output_path):
+def save_transcription(result, output_path, timestmp):
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with output_path.open("w", encoding="utf-8") as f:
         for segment in result:
-            f.write(segment.text)
-            f.write("\n")
+            if timestmp:
+                start_time = format_time(segment.t0 / 100)  # Convertir milisegundos a segundos
+                end_time = format_time(segment.t1 / 100)    # Convertir milisegundos a segundos
+                f.write(f"[{start_time} - {end_time}] {segment.text}\n")
+            else:
+                f.write(segment.text)
+                f.write("\n")
 
 ### FORMATEAR TIEMPO ###
 def format_time(seconds):
@@ -64,6 +69,7 @@ if __name__ == "__main__":
     try:
         file_load = sys.argv[1]
         model = sys.argv[2]
+        timestmp = sys.argv[4].lower() == 'true'
         if model == "Pequeño":
             model = "small"
         elif model == "Mediano":
@@ -75,7 +81,7 @@ if __name__ == "__main__":
         else:
             model = "medium"
         output_path = "storage/temp/transcripcion_temp.txt"
-        whisperPythonFunction(file_load, model, output_path)
+        whisperPythonFunction(file_load, model, output_path, timestmp)
     except Exception as e:
         print(f"Error: {e}")
         sys.exit(1)

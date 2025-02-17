@@ -47,12 +47,6 @@ def transcribe_audio(model, file_load):
 
 ### GUARDAR TRANSCRIPCIÓN ###
 def save_transcription(result, output_path, timestmp2):
-    def format_time(seconds):
-        hours = int(seconds // 3600)
-        minutes = int(seconds % 3600 // 60)
-        seconds = seconds % 60
-        return f"{hours:02}:{minutes:02}:{seconds:06.3f}"
-
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, "w", encoding="utf-8") as f:

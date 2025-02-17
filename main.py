@@ -136,8 +136,7 @@ def main(page: ft.Page):
             device_dropdown.options = [ft.dropdown.Option("CPU")]
             device_dropdown.value = "CPU"
             device_dropdown.disabled = True
-            timestmp.value = False
-            timestmp.disabled = True
+            timestmp.disabled = False
         else:
             device_dropdown.options = [ft.dropdown.Option("CPU")]
             if torch.cuda.is_available():
@@ -206,7 +205,7 @@ def main(page: ft.Page):
             process.terminate()
             process = None
         try:
-            transcription_done.value = "Transcripción cancelada por el usuario."
+            transcription_done.value = "Transcripción cancelada por el usuario. Esta acción puede tardar un poco."
         except Exception as e:
             transcription_done.value = f"Error al cancelar la transcripción: {e}"
         page.update()
@@ -248,20 +247,22 @@ def main(page: ft.Page):
     commandtxt = ft.TextField(color="black", cursor_color="black", on_submit=lambda e: run_con(commandtxt.value))
     result_con = ft.ListView(expand=1, spacing=5, padding=5, auto_scroll=True)
     terminal_ct = ft.Column([result_con])
-    timestmp = ft.Checkbox(label="Agregar marcas\nde tiempo", value=False, disabled=True)
+    timestmp = ft.Checkbox(label="Agregar marcas\nde tiempo", value=False, disabled=False)
     help = ft.AlertDialog(
         title=ft.Text("Ayuda"),
         content=ft.Text(
             "- El Script es el lenguaje de computadora que se utilizará para transcribir, puede seleccionar entre C++ y Python, siendo el de C++ más eficiente (recomendado). Si este falla, cambiar al de Python.\n"
             "- El Modelo es el encargado de transcribir el audio, puede seleccionar entre Pequeño y Mediano, siendo el Pequeño más eficiente y el Mediano más eficaz.\n"
             "- El Dispositivo es el hardware que se utilizará para transcribir, puede seleccionar entre CPU (procesador) y CUDA (tarjeta gráfica), siendo la CPU más lenta, debido a que se procesa junto a lo que hace en el computador, y la CUDA más rápida, ya que se procesa en otro entorno especializado (no está disponible en C++, y si no posee tarjeta gráfica).\n"
-            "- Agregar marcas de tiempo es la opción de agregar marcas de tiempo a la transcripción, lo que permite saber cuándo se dijo algo en el audio (no disponible con C++).\n"
+            "- Agregar marcas de tiempo es la opción de agregar marcas de tiempo a la transcripción, lo que permite saber cuándo se dijo algo en el audio.\n"
             "- El botón de Exportar permite guardar la transcripción en un archivo de texto donde usted indique.\n"
             "- El botón de Cancelar permite detener la transcripción en cualquier momento, eso sí, hay ocasiones en las que puede demorar.",
             width=600,
+            size=18,
             text_align=ft.TextAlign.JUSTIFY
         ),
         actions_alignment=ft.MainAxisAlignment.END,
+        actions=[ft.TextButton("Cerrar", on_click=lambda e: page.close(help))]
     )
 
     help_button = ft.ElevatedButton(
