@@ -17,7 +17,6 @@ Miguel Contreras; Diego Molina.
     2. [Chocolatey](#12-chocolatey)
     3. [FFmpeg](#13-ffmpeg)
     4. [git (opcional)](#14-git-si-deseas-instalar-usando-git)
-    5. [C++ Build Tools](#15-c-build-tools)
 2. [Instrucciones](#2-instrucciones)
     1. [Clonar](#21-clonar)
     2. [Instalación local](#22-instalación-local)
@@ -38,16 +37,13 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 ```
 
 ### **1.3. `FFmpeg`**
-Requiere de **Chocolatey**, y que, para instalarse, se necesita **reiniciar** el `PowerShell` (a veces con el PowerShell se requiere reiniciar el computador, ya que aún no reconoce Chocolatey, en ese caso mejor inicia el CMD (Símbolo del sistema)) e ingresar lo siguiente:
+Requiere de **Chocolatey**, y que, para instalarse, se necesita abrir una línea de comandos en `CMD` (Símbolo del Sistema) (con PowerShell se requiere reiniciar el computador, ya que aún no reconoce Chocolatey) e ingresar lo siguiente:
 ```
 choco install ffmpeg -y
 ```
 
 ### **1.4. `git`** _(si deseas instalar usando git)_
 Se puede descargar [aquí](https://git-scm.com/downloads/win). Se descargará el instalador y, al abrirlo, habrá que avanzar hasta llegar a la selección de componentes, en donde habrá que desmarcar la casilla de integración al explorador de Windows, y en la siguiente pestaña desmarcar el crear una carpeta en el menú de inicio, de ahí avanzar hasta instalar.
-
-### **1.5. `C++ Build Tools`**
-Se puede descargar [aquí](https://visualstudio.microsoft.com/visual-cpp-build-tools/). Se descargará `Visual Studio Installer`, y habrá que seleccionar, en "Cargas de trabajo", **"Desarrollo para el escritorio con C++"** y, en "Componentes individuales", seleccionar el `SDK` según el Windows que estes utilizando _(Windows 10 SDK (Última versión disponible) o Windows 11 SDK (Última versión disponible))_, y de ahí instalar.
 
 ## **2. Instrucciones**
 Ésto es una guía de usuario para poder ejecutar el programa, el cuál se recomienda seguir paso por paso para minimizar los problemas que se puedan generar durante la ejecución.
