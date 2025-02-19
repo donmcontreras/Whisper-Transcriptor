@@ -97,7 +97,7 @@ platformdirs==4.3.6
     # via pywhispercpp
 pydub==0.25.1
     # via whisper-transcriptor (pyproject.toml)
-pywhispercpp @ git+https://github.com/absadiki/pywhispercpp@a484dc2aa1bed035f2a40e55d0e8395fd70e9abc
+#pywhispercpp @ git+https://github.com/absadiki/pywhispercpp@a484dc2aa1bed035f2a40e55d0e8395fd70e9abc
     # via whisper-transcriptor (pyproject.toml)
 regex==2024.11.6
     # via
@@ -133,15 +133,15 @@ tiktoken==0.8.0
     # via
     #   whisper-transcriptor (pyproject.toml)
     #   openai-whisper
-torch==2.6.0
+#torch @ https://download.pytorch.org/whl/cu126
     # via
     #   whisper-transcriptor (pyproject.toml)
     #   openai-whisper
     #   torchaudio
     #   torchvision
-torchaudio==2.6.0
+#torchaudio @ https://download.pytorch.org/whl/cu126
     # via whisper-transcriptor (pyproject.toml)
-torchvision==0.21.0
+#torchvision @ https://download.pytorch.org/whl/cu126
     # via whisper-transcriptor (pyproject.toml)
 tqdm==4.67.1
     # via
