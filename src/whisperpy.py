@@ -37,7 +37,7 @@ def get_device(device):
 ### CARGAR MODELO ###
 def load_model(model, device):
     print(f"Cargando modelo: {model}")
-    return whisper.load_model(model, device=device)
+    return whisper.load_model(model, device=device, download_root="storage/models")
 
 ### INSTRUCCIONES PARA TRANSCRIBIR AUDIO ###
 def transcribe_audio(model, file_load):

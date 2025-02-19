@@ -25,7 +25,7 @@ def whisperPythonFunction(file_load, model="medium", output_path="storage/temp/t
 ### CARGAR MODELO ###
 def load_model(model):
     print(f"Cargando modelo: {model}")
-    model = Model(model)
+    model = Model(model, models_dir="storage/models")
     return model
 
 ### INSTRUCCIONES PARA TRANSCRIBIR AUDIO ###
