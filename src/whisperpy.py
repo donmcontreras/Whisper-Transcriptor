@@ -22,7 +22,7 @@ def whisperPythonFunction(file_load, model="medium", device="cpu", output_path="
 
     elapsed_time = end_time - start_time
     formatted_time = format_time(elapsed_time)
-    print(f"Tiempo de transcripción: {formatted_time}")
+    print(f"Tiempo de transcripción: {formatted_time}\n¡Transcripción completada!")
     
     save_transcription(result, output_path, timestmp)
     return result

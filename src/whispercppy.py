@@ -18,7 +18,7 @@ def whisperPythonFunction(file_load, model="medium", output_path="storage/temp/t
 
     elapsed_time = end_time - start_time
     formatted_time = format_time(elapsed_time)
-    print(f"Tiempo de transcripción: {formatted_time}")
+    print(f"Tiempo de transcripción: {formatted_time}\n¡Transcripción completada!")
 
     return result
 

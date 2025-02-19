@@ -1,5 +1,4 @@
 @echo off
-cd /d "C:\Whisper-Transcriptor"
-call .venv\Scripts\activate
-flet main.py
-timeout /t 5 && exit
+title Transcriptor App
+cd /d "C:\Whisper-Transcriptor\storage\data"
+start AppWOW.vbs
