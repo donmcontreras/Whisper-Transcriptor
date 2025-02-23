@@ -27,7 +27,7 @@ Miguel Contreras; Diego Molina.
 ## **1. Requisitos previos**
 Para empezar a proceder con las instrucciones de instalación, primero requiere tener (verificar en orden):
 
-### **1.1. `Python 1.12.6`**
+### **1.1. `Python 3.12.6`**
 Se puede descargar [aquí](https://www.python.org/downloads/release/python-3126/). Se decargará el instalador y, al abrirlo, habrá que marcar la casilla de privilegios de administrador y la de agregar al "PATH", posteriormente elegir instalación personalizada, indicar que la instalación será para todos los usuarios e instalar.
 
 ### **1.2. `Chocolatey`**
