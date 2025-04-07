@@ -1,54 +1,22 @@
 [project]
-name = "whisper-transcriptor"
-version = "0.1.0"
-description = ""
+name = "Transcriptor-Multimedia"
+version = "1.0.0"
+description = "Front-End para utilizar Whisper de forma local"
 readme = "README.md"
-requires-python = ">=3.12.6"
+requires-python = "==3.12.6"
 authors = [
-    { name = "Miguel Contreras", email = "miguelignacio.contreras@alumnos.ulagos.cl" },
+    { name = "Miguel Contreras", email = "mjk90000@gmail.com" },
     { name = "Diego Molina", email = "diegomolina761@gmail.com" }
 ]
 dependencies = [
-  "flet==0.26.0",
-  "torch==2.6.0",
-  "whisper==1.1.10",
-  "pydub==0.25.1",
-  "ffmpeg==1.4",
+  "flet[all]==0.27.1",
   "openai-whisper==20240930",
-  "torchaudio==2.6.0",
-  "torchvision==0.21.0",
-  "anyio==4.8.0",
-  "certifi==2025.1.31",
-  "charset-normalizer==3.4.1",
-  "colorama==0.4.6",
-  "filelock==3.17.0",
-  "fsspec==2025.2.0",
-  "h11==0.14.0",
-  "httpcore==1.0.7",
-  "httpx==0.28.1",
-  "idna==3.10",
-  "jinja2==3.1.5",
-  "llvmlite==0.44.0",
-  "markupsafe==3.0.2",
-  "more-itertools==10.6.0",
-  "mpmath==1.3.0",
-  "networkx==3.4.2",
-  "numba==0.61.0",
-  "numpy==2.1.3",
-  "oauthlib==3.2.2",
-  "pillow==11.1.0",
-  "regex==2024.11.6",
-  "repath==0.9.0",
-  "requests==2.32.3",
-  "setuptools==75.8.0",
-  "six==1.17.0",
-  "sniffio==1.3.1",
-  "sympy==1.13.1",
-  "tiktoken==0.8.0",
-  "tqdm==4.67.1",
-  "typing-extensions==4.12.2",
-  "urllib3==2.3.0",
-  "pywhispercpp",
+  "pydub==0.25.1",
+  "pywhispercpp @ git+https://github.com/absadiki/pywhispercpp@fc58ffbf03058e1dab79f1823bcf7bee36a71edb",
+  "torch @ https://download.pytorch.org/whl/cu126/torch-2.6.0%2Bcu126-cp312-cp312-win_amd64.whl#sha256=b10c39c83e5d1afd639b5c9f5683b351e97e41390a93f59c59187004a9949924",
+  "torchaudio @ https://download.pytorch.org/whl/cu126/torchaudio-2.6.0%2Bcu126-cp312-cp312-win_amd64.whl#sha256=144b286d2f6195ba8d75ed1a568bddd718d032d54d1bf94940d47730c6321a0b",
+  "torchvision @ https://download.pytorch.org/whl/cu126/torchvision-0.21.0%2Bcu126-cp312-cp312-win_amd64.whl#sha256=600c18579cd6eae8f6bbfcc43a088bc512bfde1fa4de0587a4db1d44eaf411f9",
+  "tqdm==4.67.1"
 ]
 
 [tool.flet]
@@ -58,27 +26,18 @@ org = "com.mycompany"
 
 # project display name that is used as an app title on Android and iOS home screens,
 # shown in window titles and about app dialogs on desktop.
-product = "whisper-transcriptor"
+product = "Transcriptor"
 
 # company name to display in about app dialogs
-company = "Flet"
+company = "MCandDM"
 
 # copyright text to display in about app dialogs
-copyright = "Copyright (C) 2025 by Flet"
+copyright = "Copyright (C) 2025 by Miguel Contreras and Diego Molina"
 
 [tool.flet.app]
-path = ""
+path = "src"
 
 [tool.uv]
 dev-dependencies = [
-    "flet[all]==0.26.0",
-]
-
-[tool.uv.sources]
-pywhispercpp = { git = "https://github.com/absadiki/pywhispercpp" }
-
-[tool.poetry]
-package-mode = false
-
-[tool.poetry.group.dev.dependencies]
-flet = {extras = ["all"], version = "0.26.0"}
+    "flet[all]==0.27.1",
+]#
