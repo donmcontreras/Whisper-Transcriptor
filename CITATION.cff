@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "Si usas este software, por favor cita este repositorio como:"
+authors:
+- family-names: "Contreras"
+  given-names: "Miguel"
+- family-names: "Molina"
+  given-names: "Diego"
+title: "Whisper-Transcriptor"
+version: 1.0.0
+license: "MIT"
+date-released: 2025-02-23
+url: "https://github.com/donmcontreras/Whisper-Transcriptor"
